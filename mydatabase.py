@@ -3,7 +3,7 @@ import json
 class Database:
     
 
-    def add_data(self, name, email, password, confirmpassword,rhs_value):
+    def add_data(self, name, password, confirmpassword,rhs_value):
         try:
             # Read the existing database
             with open('database.json', 'r') as rf:

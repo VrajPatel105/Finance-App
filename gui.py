@@ -130,7 +130,6 @@ class FinanceApp:
 
         
 
-
     def perform_login(self):
         email = self.email_input.get()
         password = self.password_input.get()
@@ -158,16 +157,18 @@ class FinanceApp:
         confirm_password = self.confirm_password_input.get()
         rhs_value = self.app.rhs_number()
 
-        response = self.dbo.add_data(name,email,password,confirm_password,rhs_value)
-        rhsval = self.dbo.add_rhs_val(email,rhs_value)
+        response = self.dbo.add_data(name,password,confirm_password,rhs_value)
+        response_rhs_val = self.dbo.add_rhs_val(email,rhs_value)
 
         if response:
-            messagebox.showinfo('Success',f'Registration Sucessfull. Your RHS Number is: {rhsval}')
+            messagebox.showinfo('Success',f'Registration Sucessfull. Your RHS Number is: {response_rhs_val}')
             self.login_gui()
         else:
             messagebox.showerror('Error','User already exists or the entered password dosent match')
 
-    def home_gui():
-        pass
+    def home_gui(self):
+        self.clear_gui()
+
+        
     
 FinanceApp()
