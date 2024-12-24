@@ -1,4 +1,5 @@
 from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
 from mydatabase import Database
 from app import App
@@ -138,16 +139,19 @@ class FinanceApp:
         response = self.dbo.search(rhs_response,password)
         
         if response:
-            messagebox.showinfo('Success', 'Login Successful')
+            #messagebox.showinfo('Success', 'Login Successful')
             self.home_gui()
         else:
             messagebox.showerror('Error', 'Incorrect Email/Password')
 
 
+
     # since we have to clean the gui a lot of times, we are creating a function.
-    def clear_gui(self):
-        for i in self.root.pack_slaves():
-            i.destroy()
+    def clear_gui(self, container=None):
+        if container is None:
+            container = self.root
+        for widget in container.pack_slaves():
+            widget.destroy()
 
 
     def perform_registration(self):
@@ -166,8 +170,62 @@ class FinanceApp:
         else:
             messagebox.showerror('Error','User already exists or the entered password dosent match')
 
+    def logout(self):
+        # Close the home window and show the login window again
+        self.home_window.destroy()
+        self.root.deiconify()
+        self.login_gui()
+
+    def create_sidebar(self):
+        # Sidebar frame
+        sidebar = tk.Frame(self.root, bg='#1a237e', width=250)
+        sidebar.grid(row=0, column=0, sticky='nsew', rowspan=2)
+        sidebar.grid_propagate(False)
+        
+        # User profile section
+        profile_frame = tk.Frame(sidebar, bg='#1a237e')
+        profile_frame.pack(pady=20, padx=10, fill='x')
+        
+        tk.Label(profile_frame, text="Welcome, Trader", 
+                fg='white', bg='#1a237e', font=('Helvetica', 14, 'bold')).pack()
+        tk.Label(profile_frame, text="Balance: $100,000", 
+                fg='#90caf9', bg='#1a237e', font=('Helvetica', 12)).pack()
+        
+        # Navigation buttons
+        nav_buttons = [
+            ("Dashboard", "🏠"),
+            ("Portfolio", "📊"),
+            ("Trade", "💱"),
+            ("Analytics", "📈"),
+            ("Settings", "⚙️")
+        ]
+        
+        for text, icon in nav_buttons:
+            btn = tk.Button(sidebar, text=f"{icon} {text}", 
+                          bg='#283593', fg='white',
+                          font=('Helvetica', 12),
+                          bd=0, pady=10, width=20)
+            btn.pack(pady=5, padx=10)
+
     def home_gui(self):
-        self.clear_gui()
+
+        self.root.withdraw()
+        self.create_sidebar()
+
+        # Home GUI in a new Toplevel window
+        self.home_window = tk.Toplevel()
+        self.home_window.title("Home")
+        self.home_window.configure(bg='#2c3e50')
+
+        # Set fullscreen attribute
+        self.home_window.attributes('-fullscreen', True)
+
+        tk.Label(self.home_window, text="Welcome to the Home Page!", bg='#2c3e50', fg='#ecf0f1',
+                font=('Verdana', 24, 'bold')).pack(pady=20)
+
+        # Button to log out and return to the login screen
+        tk.Button(self.home_window, text='Logout', command=self.logout, bg='#c0392b', fg='white',
+                font=('Verdana', 12, 'bold')).pack(pady=10)
 
         
     
