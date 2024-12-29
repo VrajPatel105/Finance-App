@@ -52,11 +52,11 @@ class Database:
     def add_user(self, name, email, password):
         try:
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
-            cursor = self.conn.execute(
+            returned_id_row = self.conn.execute(
                 'INSERT INTO users (name, email, password) VALUES (?, ?, ?) RETURNING id',
                 (name, email, hashed_password)
             )
-            user_id = cursor.fetchone()[0]
+            user_id = returned_id_row.fetchone()[0] # this fetches the first row and then the first col in that row
             self.conn.commit()
             return user_id
         except:
