@@ -95,6 +95,61 @@ class Database:
         return cursor.fetchall()
 
 
+    def update_portfolio(self,user_id, symbol, shares, price, is_buy):
+        cursor = self.conn.execute(
+            'SELECT shares, avg_price FROM portfolio WHERE user_id = ? AND symbol=?',(user_id,symbol)
+        )
+        existing = cursor.fetchone()
+
+        if is_buy:
+            if existing:
+                new_shares = existing[0] + shares
+                only_new_share_avg_price = shares * price
+                new_avg_price = ((existing[0] + only_new_share_avg_price)) / new_shares
+
+                self.conn.execute(
+                    'UPDATE portfolio SET shares=?, avg_price=? WHERE user_id=? AND symbol=?',
+                    (new_shares, new_avg_price, user_id, symbol)
+                )
+            else:
+                self.conn.execute(
+                    'INSERT INTO portfolio (user_id, symbol, shares, avg_price) VALUES (?, ?, ?, ?)',(user_id,symbol,shares,price)
+                )
+
+        else:
+            if existing and existing[0] >= shares:
+                new_shares = existing[0] - shares
+                if new_shares > 0:
+                    self.conn.execute(
+                        'UPDATE portfolio SET shares=? WHERE user_id=? AND symbol=?', (new_shares, user_id, symbol)
+                        )
+                else:
+                    self.conn.execute(
+                        'DELETE FROM portfolio WHERE user_id = ? AND symbol=?',(user_id,symbol)
+                    )
+            else:
+                return False
+
+
+        # recording the transaction
+
+        self.conn.execute(
+            'INSERT INTO transactions (user_id, symbol, transaction_type, shares, price) VALUES (?, ?, ?, ?, ?)',(user_id,symbol,'BUY' if is_buy else 'SELL', shares, price)
+        )
+
+
+        # updating the user balance
+        transaction_value = shares * price
+
+        self.conn.execute(
+            'UPDATE users SET balance = balance + ? WHERE id=?',(-transaction_value if is_buy else transaction_value, user_id)
+        )
+
+        self.conn.commit()
+        return True
+
+
+
 def register_page(db):
     st.title('Register New Account')
 
@@ -205,7 +260,7 @@ def welcome_page():
         )])
         
         fig.update_layout(
-            title="Sample Trading Chart",
+            title="Trade Easily and Securely",
             yaxis_title="Stock Price",
             template="plotly_dark",
             height=400
@@ -282,7 +337,7 @@ def create_stock_chart(data, symbol):
 
     return fig
 
-def trading_page(self):
+def trading_page():
     st.title('Trading Dashboard')
     
     # Stock symbol input
@@ -321,8 +376,47 @@ def trading_page(self):
             # Trading form
             col1, col2 = st.columns(2)
 
+            # for buying the stock
+            with col1:
+                with st.form('buy_form'):
+                    st.subheader('Buy Stock')
+                    shares_to_buy = st.number_input('Number of shares to buy', min_value=0.0, step=1.0)
+                    total_share_cost = shares_to_buy * current_price
+                    st.write(f'Total Cost: ${total_share_cost:.2f}')
+                    buy_submit_btn = st.form_submit_button('Buy')
 
+                    if buy_submit_btn:
+                        if total_share_cost > st.session_state.user['balance']:
+                            st.error('Insufficient funds!')
+                        else:
+                            db = Database()
+                            if db.update_portfolio(st.session_state.user['id'],symbol,shares_to_buy,current_price, True):
+                                st.success(f'Successfully bought {shares_to_buy} shares of {symbol}')
+                                st.session_state.user['balance'] -= total_share_cost
+                                st.rerun()
+                            else:
+                                st.error('Transaction Failed. Please try later')
+            
 
+            # for selling the stock
+            with col2:
+                with st.form('sell_form'):
+                    st.subheader('Sell Stock')
+                    shares_to_sell = st.number_input('Number of shares to sell', min_value=0.0, step=1.0)
+                    total_share_cost_for_selling = shares_to_sell * current_price
+                    st.write(f'Total Cost : ${total_share_cost:.2f}')
+                    sell_submit_btn = st.form_submit_button('Sell')
+
+                    if sell_submit_btn:
+                        db = Database()
+                        if db.update_portfolio(st.session_state.user['id'],symbol,shares_to_sell,current_price,False):
+                            st.success(f'Successfully Sold {shares_to_sell} shares of {symbol}')
+                            st.session_state.user['balance'] += total_share_cost_for_selling
+                            st.rerun()
+                        else:
+                            st.error('Insufficient amount of Shares')
+        else:
+            st.error('Invalid stock symbol or error fetching the data. Please try again Later.')
 
 def create_sidebar():
     with st.sidebar:
@@ -346,7 +440,6 @@ def logout():
     st.session_state.logged_in = False
     st.session_state.current_page = 'login'
     st.session_state.user = None
-    st.rerun()
 
 
 def main():
@@ -370,7 +463,10 @@ def main():
             login_page(db)
     else:
         create_sidebar()
-
+        if st.session_state.current_page == 'portfolio':
+            portfolio_page()
+        else:
+            trading_page()
 
 
 
