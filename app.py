@@ -57,14 +57,14 @@ class Database:
             password TEXT NOT NULL,
             balance REAL DEFAULT 100000.0
         )''')
-        ''' Explaination of the above table:
-            self.conn.execute -> this will simply make a connection to the sql lite database
-            PRIMARY KEY -> A universal value. This of it as someone's passport number.
-            AUTOINCREMENT -> the id will initially start from 1 and than will be incremented automatically
-            email -> should be a unique text inside the database.
-            balance is a real number 
-            DEFAULT is the value that all the users will get from the very start
-        '''
+        
+         #   Explaination of the above table:
+         #   self.conn.execute -> this will simply make a connection to the sql lite database
+         #   PRIMARY KEY -> A universal value. This of it as someone's passport number.
+         #   AUTOINCREMENT -> the id will initially start from 1 and than will be incremented automatically
+         #   email -> should be a unique text inside the database.
+         #   balance is a real number 
+         #   DEFAULT is the value that all the users will get from the very start
         
         # Portfolio table
         self.conn.execute('''
@@ -74,8 +74,10 @@ class Database:
             symbol TEXT NOT NULL,
             shares REAL NOT NULL,
             avg_price REAL NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id) # FOREIGN KEY -> Here you are establishing a connection from the users table 'id' and referencing it to foreign key.
+            FOREIGN KEY (user_id) REFERENCES users (id)
         )''')
+
+       # \* FOREIGN KEY -> Here you are establishing a connection from the users table 'id' and referencing it to foreign key. *\
         
         # Transactions table
         self.conn.execute('''
@@ -405,10 +407,7 @@ def create_stock_chart(data, symbol):
                 open=data['Open'],
                 high=data['High'],
                 low=data['Low'],
-                close=data['Close'])])
-    '''
-                Here the open, high, low and close are inbuild functiosn offered by plotly. 
-    '''
+                close=data['Close'])])  #Here the open, high, low and close are inbuild functiosn offered by plotly. 
 
      # To update the layout
     fig.update_layout(
