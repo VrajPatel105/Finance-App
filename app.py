@@ -254,9 +254,73 @@ def portfolio_page():
     else:
         st.info('Your portfolio is empty. Start trading to build your portfolio!')
 
+def format_number(num):
+    if abs(num) >= 1e9:
+        return f'${num/1e9:.2f}B'
+    elif abs(num) >= 1e6:
+        return f'${num/1e6:.2f}M'
+    elif abs(num) >= 1e3:
+        return f'${num/1e3:.2f}K'
+    else:
+        return f'${num:.2f}'
 
-def trading(self):
-    pass
+
+def create_stock_chart(data, symbol):
+    fig = go.Figure(data=[go.Candlestick(x=data.index,
+                open=data['Open'],
+                high=data['High'],
+                low=data['Low'],
+                close=data['Close'])])
+
+
+    fig.update_layout(
+        title=f'{symbol} Stock Price',
+        yaxis_title='Price',
+        template='plotly_dark',
+        xaxis_rangeslider_visible=False
+    )
+
+    return fig
+
+def trading_page(self):
+    st.title('Trading Dashboard')
+    
+    # Stock symbol input
+    symbol = st.text_input('Enter Stock Symbol (e.g., AAPL, GOOGL)', '').upper()
+
+    if symbol:
+        hist_data, stock_info = get_stock_data(symbol)
+        
+        if hist_data is not None and stock_info is not None:
+            # Display stock info
+            col1, col2, col3 = st.columns(3)
+            current_price = hist_data['Close'].iloc[-1]
+            
+            with col1:
+                st.metric(
+                    label="Current Price",
+                    value=f"${current_price:.2f}",
+                    delta=f"{((current_price - hist_data['Close'].iloc[-2])/hist_data['Close'].iloc[-2]*100):.2f}%"
+                )
+            
+            with col2:
+                st.metric(
+                    label="Market Cap",
+                    value=format_number(stock_info.get('marketCap', 0))
+                )
+            
+            with col3:
+                st.metric(
+                    label="Volume",
+                    value=format_number(hist_data['Volume'].iloc[-1])
+                )
+
+            # Display chart
+            st.plotly_chart(create_stock_chart(hist_data, symbol))
+            
+            # Trading form
+            col1, col2 = st.columns(2)
+
 
 
 
