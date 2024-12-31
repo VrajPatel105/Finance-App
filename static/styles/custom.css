@@ -1,0 +1,149 @@
+/* Stock grid and card styles */
+.stock-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.stock-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.stock-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-color: #58a6ff;
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+}
+
+.stock-symbol {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #58a6ff;
+}
+
+.stock-price-info {
+    text-align: right;
+}
+
+.stock-current-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #c9d1d9;
+    margin-bottom: 0.5rem;
+}
+
+.stock-change {
+    font-size: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.stock-info {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.stock-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    color: #8b949e;
+    font-size: 0.9rem;
+}
+
+.stock-line .label {
+    color: #8b949e;
+}
+
+.stock-line .value {
+    color: #c9d1d9;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #8b949e;
+    font-size: 0.95rem;
+}
+
+.detail-value {
+    color: #c9d1d9;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+/* Profit/Loss color indicators */
+.positive {
+    color: #238636;
+    background: rgba(35, 134, 54, 0.1);
+}
+
+.negative {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.1);
+}
+
+/* Metric card improvements */
+.metrics-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.metric-card {
+    flex: 1;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 100%;
+}
+
+.metric-card {
+    background: #161b22;
+    padding: 1.25rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #30363d;
+}
+
+.metric-title {
+    color: #8b949e;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    color: #c9d1d9;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.metric-delta {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    display: inline-block;
+}
