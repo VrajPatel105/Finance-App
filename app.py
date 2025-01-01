@@ -58,8 +58,6 @@ def main():
         else:
             trading_page()
     
-    print("Hello")
-    print("Changes made please check")
 
 if __name__ == "__main__":
     main()
