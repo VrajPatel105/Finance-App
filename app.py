@@ -56,7 +56,7 @@ def main():
         if st.session_state.current_page == 'portfolio':
             portfolio_page()
         else:
-            trading_page()
+            trading_page() 
     
 
 if __name__ == "__main__":
