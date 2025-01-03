@@ -96,38 +96,43 @@ def trading_page():
         else:
             st.error('Invalid stock symbol or error fetching the data. Please check the symbol and try again.')
 
-        # Add news section after the trading forms
-    # Add news section after the trading forms
-    st.markdown("---")
-    st.subheader(f"Latest News for {symbol}")
 
-    with st.spinner('Loading news...'):
-        news = StockData.get_stock_news(symbol) or StockData.get_stock_news_backup(symbol)
+    if symbol:
+        st.markdown("---")
+        st.subheader(f"Latest News for {symbol}")
         
-        if news:
-            for item in news:
-                with st.container():
-                    col1, col2 = st.columns([7,3])  # 70% for text, 30% for image
-                    
-                    with col1:
-                        current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
-                        # Clean up the title and remove any '[Read more]' text from it
-                        title = item['title'].replace('[Read more]', '').strip()
-                        summary = item.get('summary', '').replace('[Read more]', '').strip()
+        with st.spinner('Loading news...'):
+            news = StockData.get_stock_news(symbol)
+            
+            if news:
+                for item in news:
+                    with st.container():
+                        col1, col2 = st.columns([7,3])  # 70% for text, 30% for image
                         
-                        st.markdown(f"""
-                        ### {title}
-                        *{current_time}*
+                        with col1:
+                            # Clean up the title and remove any special text
+                            title = item['title'].replace('[Read more]', '').strip()
+                            
+                            # Clean up the summary - remove unwanted text and format
+                            summary = item.get('summary', '')
+                            summary = summary.replace('In This Article:', '').replace('\n', ' ').strip()
+                            
+                            # Use the published time from the news item instead of current time
+                            published_time = item.get('published', datetime.now().strftime('%Y-%m-%d %H:%M'))
+                            
+                            st.markdown(f"""
+                            ### {title}
+                            <p style="color: #666; font-size: 0.8em;">{published_time}</p>
+                            
+                            {summary}
+                            
+                            <a href="{item['link']}" target="_blank" style="color: #3b82f6; text-decoration: none;">Read Article</a>
+                            """, unsafe_allow_html=True)
                         
-                        {summary}
+                        if item.get('image'):
+                            with col2:
+                                st.image(item['image'], use_container_width=True)
                         
-                        [Read Article]({item['link']})
-                        """)
-                    
-                    if item.get('image'):
-                        with col2:
-                            st.image(item['image'], use_container_width=True)
-                    
-                    st.markdown("---")
-        else:
-            st.info(f"No recent news available for {symbol}")
+                        st.markdown("<hr style='margin: 2rem 0; opacity: 0.2;'>", unsafe_allow_html=True)
+            else:
+                st.info(f"No recent news available for {symbol}")

@@ -24,7 +24,7 @@ def portfolio_page():
             index=4  # Default to 1 Year
         )
     
-    # Get current portfolio holdings
+    # Get current portfolio holdings for the specific user.
     portfolio = db.get_portfolio(st.session_state.user['id'])
     
     # Create a placeholder for the chart
@@ -120,14 +120,16 @@ def portfolio_page():
         # Show loading message while fetching current holdings data
         with st.spinner('Loading current holdings...'):
             portfolio_data = []
+            # Here we are calling the get stock data function and the function returns historic data in form of a dataframe and the second this is _ because we need it.
             for symbol, shares, avg_price in portfolio:
                 hist_data, _ = StockData.get_stock_data(symbol, period='1d')
                 if hist_data is not None and not hist_data.empty:
-                    current_price = hist_data['Close'].iloc[-1]
+                    current_price = hist_data['Close'].iloc[-1] # Since hist_data is a dataframe, we are fetching the last row by iloc[-1] in the 'Close' column
                     position_value = shares * current_price
                     profit_loss = (current_price - avg_price) * shares
                     profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
                     
+                    # Appending all the above defined value into a dataframe and then plotting the stock cards ( This are for the stocks that are owned by the user)
                     portfolio_data.append({
                         'Symbol': symbol,
                         'Shares': f"{shares:,.2f}",
@@ -147,6 +149,7 @@ def portfolio_page():
 
 
 def create_stock_cards(portfolio_data):
+        # Html code for styled stock cards
         st.markdown("""
         <style>
             .stock-grid {
@@ -221,6 +224,7 @@ def create_stock_cards(portfolio_data):
         # Start grid container
         st.markdown('<div class="stock-grid">', unsafe_allow_html=True)
         
+        # Creating seperate cards for every entry of the user's portfolio (stocks)
         for stock in portfolio_data:
             profit_loss = stock['raw_profit_loss']
             profit_loss_pct = stock['raw_profit_loss_pct']

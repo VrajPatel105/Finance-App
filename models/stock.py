@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import streamlit as st
+import requests
 
 class StockData:
     # Function to get the live data from the the market using yfinance api
@@ -125,71 +126,10 @@ class StockData:
         return pd.DataFrame(portfolio_values)
 
 
-    # Add this method to your StockData class
+
     @staticmethod
     def get_stock_news(symbol):
-        """
-        Get the latest news for a specific stock
-        Returns: List of news items with title, publisher, link and publish date
-        """
         try:
-            stock = yf.Ticker(symbol)
-            news = stock.news
-            
-            print(f"Direct news fetch result: {len(news) if news else 'No news'}")
-            
-            if news:
-                formatted_news = []
-                for item in news[:10]:
-                    try:
-                        # Print the entire item for debugging
-                        print(f"Full news item: {item}")
-                        
-                        # Extract the content since that's what we're getting
-                        content = item.get('content', {})
-                        if isinstance(content, dict):
-                            news_item = {
-                                'title': content.get('title', 'No Title Available'),
-                                'publisher': content.get('publisher', {}).get('name', 'Unknown Publisher'),
-                                'link': content.get('url', '#'),
-                                'published': datetime.fromtimestamp(content.get('publishedAt', 0)).strftime('%Y-%m-%d %H:%M'),
-                                'summary': content.get('description', ''),
-                                'image': content.get('thumbnail', {}).get('resolutions', [{}])[0].get('url', None)
-                            }
-                        else:
-                            # If content is not a dict, try to use the main item
-                            news_item = {
-                                'title': item.get('title', 'No Title Available'),
-                                'publisher': 'Yahoo Finance',
-                                'link': item.get('link', '#'),
-                                'published': datetime.now().strftime('%Y-%m-%d %H:%M'),
-                                'summary': str(content)[:200] + '...' if content else ''
-                            }
-                        
-                        formatted_news.append(news_item)
-                        print(f"Processed news item: {news_item}")
-                        
-                    except Exception as e:
-                        print(f"Error processing individual news item: {e}")
-                        continue
-
-                return formatted_news
-            
-            print(f"No news found for {symbol}")
-            return None
-
-        except Exception as e:
-            print(f"Major error in get_stock_news: {e}")
-            return None
-
-    @staticmethod
-    def get_stock_news_backup(symbol):
-        """
-        Backup method to get stock news using NewsAPI
-        """
-        try:
-            import requests
-            
             API_KEY = "e92fe2a711264deea18ed1db329d7e15"
             url = f"https://newsapi.org/v2/everything?q={symbol}+stock&apiKey={API_KEY}&language=en&sortBy=publishedAt"
             
@@ -211,5 +151,5 @@ class StockData:
                 return formatted_news
             return None
         except Exception as e:
-            print(f"Error in backup news fetch: {e}")
+            print(f"Error in fetching news : {e}")
             return None
