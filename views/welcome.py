@@ -57,8 +57,8 @@ def welcome_page():
     # Welcome header - made more compact
     st.markdown("""
         <div class="welcome-header">
-            <h1 style='font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem;'>Welcome to Trading Platform 📈</h1>
-            <p style='font-size: 1rem; opacity: 0.9;'>Your Gateway to Smart Trading</p>
+            <h1 style='font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem;'>Welcome to Finch</h1>
+            <p style='font-size: 1rem; opacity: 0.9;'> Where Pennies Grow Wings</p>
         </div>
     """, unsafe_allow_html=True)
     

@@ -35,7 +35,7 @@ def init_session_state():
 def main():
     st.set_page_config(
         page_title="Trading Platform",
-        page_icon="📈",
+        page_icon='resources/finch.ico',
         layout="wide"
     )
     

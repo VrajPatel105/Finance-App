@@ -315,7 +315,7 @@ def login_page(db):
     st.markdown("""
         <div class="login-container">
             <div class="login-header">
-                <h1>📈 Trading Platform</h1>
+                <h1>Finch</h1>
                 <p style="color: #64748b;">Welcome back! Please login to your account.</p>
             </div>
         </div>

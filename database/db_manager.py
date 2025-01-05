@@ -129,8 +129,9 @@ class Database:
         if is_buy:
             if existing:
                 new_shares = existing[0] + shares  # existing is a list with elements [current_shares, avg_price]. Therefore existing[0] gives the current number of shares.
-                only_new_share_avg_price = shares * price  # caluculating the new price only for the stocks that were bought latest
-                new_avg_price = ((existing[0] + only_new_share_avg_price)) / new_shares  # Calculating the average
+                old_shares = existing[1]
+                only_new_share_price = new_shares * price  # caluculating the new price only for the stocks that were bought latest
+                new_avg_price = ((old_shares + only_new_share_price)) / new_shares  # Calculating the average
 
                 # Updating the portfolio
                 self.conn.execute(
