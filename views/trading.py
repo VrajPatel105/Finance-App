@@ -83,8 +83,9 @@ def trading_page():
                         sell_submit_btn = st.form_submit_button('Sell')
 
                         if sell_submit_btn:
-                            
+
                             db = Database()
+                            
                             # Firstly checking if the user has enough shares to sell. If not then error
                             if db.update_portfolio(st.session_state.user['id'], symbol, shares_to_sell, current_price, False):
                                 st.success(f'Successfully Sold {shares_to_sell} shares of {symbol}')  # User had shares for that stocks so sell 
