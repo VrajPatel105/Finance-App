@@ -138,7 +138,7 @@ class StockData:
             
             if data.get('articles'):
                 formatted_news = []
-                for item in data['articles'][:10]:
+                for item in data['articles'][:5]:
                     news_item = {
                         'title': item.get('title', 'No Title Available'),
                         'publisher': item.get('source', {}).get('name', 'Unknown Publisher'),
