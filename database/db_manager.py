@@ -54,6 +54,18 @@ class Database:
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )''')
+
+    
+        self.conn.execute('''
+        CREATE TABLE IF NOT EXISTS crypto_portfolio (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            symbol TEXT NOT NULL,
+            crypto_amount REAL NOT NULL,
+            avg_price REAL NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )''')
+
         
         self.conn.commit()  # commit -> establishes connection
 
@@ -178,5 +190,48 @@ class Database:
             (-transaction_value if is_buy else transaction_value, user_id)
         )
 
+        self.conn.commit()
+        return True
+    
+
+
+    def update_crypto_portfolio(self, user_id, symbol, crypto_amount, current_price, is_buy):
+        cursor = self.conn.execute(
+            'SELECT crypto_amount, avg_price FROM crypto_portfolio WHERE user_id = ? AND symbol=?',
+            (user_id, symbol)
+        )
+        
+        existing = cursor.fetchone()
+
+        if is_buy:
+            if existing:
+                new_amount = existing[0] + crypto_amount
+                new_avg_price = ((existing[1] * existing[0]) + (current_price * crypto_amount)) / new_amount
+                
+                self.conn.execute(
+                    'UPDATE crypto_portfolio SET crypto_amount=?, avg_price=? WHERE user_id = ? AND symbol = ?',
+                    (new_amount, new_avg_price, user_id, symbol)
+                )
+            else:
+                self.conn.execute(
+                    'INSERT INTO crypto_portfolio (user_id, symbol, crypto_amount, avg_price) VALUES (?, ?, ?, ?)',
+                    (user_id, symbol, crypto_amount, current_price)
+                )
+        else:
+            if existing and existing[0] >= crypto_amount:
+                new_amount = existing[0] - crypto_amount
+                if new_amount > 0:
+                    self.conn.execute(
+                        'UPDATE crypto_portfolio SET crypto_amount=? WHERE user_id=? AND symbol=?',
+                        (new_amount, user_id, symbol)
+                    )
+                else:
+                    self.conn.execute(
+                        'DELETE FROM crypto_portfolio WHERE user_id = ? AND symbol=?',
+                        (user_id, symbol)
+                    )
+            else:
+                return False
+                
         self.conn.commit()
         return True
