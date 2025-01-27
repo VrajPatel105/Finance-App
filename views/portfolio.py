@@ -2,10 +2,20 @@ import streamlit as st
 import plotly.graph_objects as go
 from models.stock import StockData
 from database.db_manager import Database
+from views.crypto_portfolio import crypto_porftolio
 
 # Function for loading the portfolio page once user is logged in
 def portfolio_page():
     st.title('Portfolio Overview')
+
+    stocks_btn = st.form_submit_button('Stocks')
+    crypto_btn = st.form_submit_button('CryptoCurrency')
+
+
+    if crypto_btn:
+        crypto_porftolio()
+
+
     db = Database()
     
     # Time period selector in a smaller column
