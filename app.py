@@ -10,6 +10,7 @@ from views.welcome import welcome_page
 from views.trading import trading_page
 from views.portfolio import portfolio_page
 from views.crypto import load_crypto
+from views.ai_assistant import Assistant
 # Function to load a side bar containing a portfolio, trade and logout button
 
 
@@ -126,6 +127,9 @@ def create_sidebar():
         
         if st.button('📊 Portfolio'):
             st.session_state.current_page = 'portfolio'
+
+        if st.button('🤖 AI Assistant'):
+            st.session_state.current_page = 'ai_assistant'
             
             
         st.sidebar.button('🚪 Logout', on_click=logout)
@@ -139,6 +143,8 @@ def init_session_state():
        st.session_state.current_page = 'welcome'
    if not hasattr(st.session_state, 'user'):
        st.session_state.user = None
+   if not hasattr(st.session_state, 'ai_chat_history'):
+       st.session_state.ai_chat_history = []
 
 def main():
    
@@ -160,6 +166,9 @@ def main():
            portfolio_page()
        elif st.session_state.current_page == 'crypto':
            load_crypto()
+       elif st.session_state.current_page == 'ai_assistant':
+           ai = Assistant()
+           ai.run()
        else:
            trading_page()
 
