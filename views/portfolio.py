@@ -2,19 +2,11 @@ import streamlit as st
 import plotly.graph_objects as go
 from models.stock import StockData
 from database.db_manager import Database
-from views.crypto_portfolio import crypto_porftolio
+import requests
 
 # Function for loading the portfolio page once user is logged in
 def portfolio_page():
     st.title('Portfolio Overview')
-
-    stocks_btn = st.form_submit_button('Stocks')
-    crypto_btn = st.form_submit_button('CryptoCurrency')
-
-
-    if crypto_btn:
-        crypto_porftolio()
-
 
     db = Database()
     
@@ -123,9 +115,14 @@ def portfolio_page():
                 delta=f"{(profit_loss/latest['invested']*100 if latest['invested'] != 0 else 0):.2f}%"
             )
     
-    # Display current holdings with styled cards
+    # Displaying the current holdings of the user with styled cards
+
+    st.markdown('---')
+
+
     if portfolio:
         st.subheader("Current Holdings")
+        st.markdown("<h1 style='text-align: center;'>STOCKS</h1>", unsafe_allow_html=True)
         
         # Show loading message while fetching current holdings data
         with st.spinner('Loading current holdings...'):
@@ -152,13 +149,58 @@ def portfolio_page():
                     })
             
             if portfolio_data:
-                create_stock_cards(portfolio_data)
+                create_stock_cards_stock(portfolio_data)
     else:
         st.info('Your portfolio is empty. Start trading to build your portfolio!')
 
 
+    st.markdown('---')
+    st.markdown("<h1 style='text-align: center;'>CRYPTO</h1>", unsafe_allow_html=True)
 
-def create_stock_cards(portfolio_data):
+
+    crypto_retrieved_data = db.get_crypto_data(st.session_state.user['id'])
+
+    if crypto_retrieved_data:
+        with st.spinner('Loading current holdings...'):
+            crypto_data = []
+
+        for symbol,crypto_amount, avg_price in crypto_retrieved_data:
+
+           headers = {
+           'X-CMC_PRO_API_KEY': '440c12ff-74f9-4ff9-92a1-07345791e1cb',
+           'Accept': 'application/json'
+           }
+            # problem to fix: This for loop will hit the api everytime for a new symbol. But for now, since we are not going to make a lot of calls, it's not a problem.
+           response = requests.get(
+               'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+               headers=headers,
+               params={'symbol': symbol}
+           )
+           data = response.json()
+
+           current_price = data['data'][symbol]['quote']['USD']['price']
+           position_value = current_price * crypto_amount
+           profit_loss = (current_price - avg_price) * crypto_amount
+           profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
+
+           crypto_data.append({
+                            'Symbol': symbol,
+                            'Crypto Amount': f"{crypto_amount:,.2f}",
+                            'Avg Price': f'${avg_price:,.2f}',
+                            'Current Price': f'${current_price:,.2f}',
+                            'Value': f'${position_value:,.2f}',
+                            'raw_profit_loss': profit_loss,
+                            'raw_profit_loss_pct': profit_loss_pct,
+                            'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
+                        })
+        
+        if crypto_retrieved_data:
+                create_stock_cards_crypto(crypto_data)
+        else:
+            st.info('Your portfolio is empty. Start trading to build your portfolio!')
+
+
+def create_stock_cards_stock(portfolio_data):
         # Html code for styled stock cards
         st.markdown("""
         <style>
@@ -279,3 +321,138 @@ def create_stock_cards(portfolio_data):
         st.markdown('</div>', unsafe_allow_html=True)
 
 
+def create_stock_cards_crypto(crypto_data):
+    # Html code for styled crypto cards with new design
+    st.markdown("""
+    <style>
+        .stock-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+            padding: 1.2rem;
+            margin: 0 auto;
+        }
+        .stock-card {
+            background: linear-gradient(145deg, #1a1f2c, #2a2f3c);
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 0.7rem;
+            transition: all 0.3s ease;
+        }
+        .stock-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+            border-color: #805ad5;
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid rgba(99, 108, 138, 0.3);
+        }
+        .stock-symbol {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #805ad5;
+            text-shadow: 0 0 15px rgba(128, 90, 213, 0.3);
+        }
+        .stock-price-info {
+            text-align: right;
+        }
+        .stock-current-price {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            margin-bottom: 0.6rem;
+            text-shadow: 0 0 10px rgba(226, 232, 240, 0.2);
+        }
+        .stock-change {
+            font-size: 1rem;
+            padding: 0.3rem 1rem;
+            border-radius: 999px;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .stock-info {
+            display: grid;
+            gap: 0.7rem;
+            background: rgba(26, 32, 44, 0.4);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        .stock-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            color: #a0aec0;
+            font-size: 1rem;
+        }
+        .positive {
+            color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+        .negative {
+            color: #f56565;
+            background: rgba(245, 101, 101, 0.1);
+            border: 1px solid rgba(245, 101, 101, 0.2);
+        }
+        .label {
+            font-weight: 500;
+        }
+        .value {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Start grid container
+    st.markdown('<div class="stock-grid">', unsafe_allow_html=True)
+    
+    # Creating separate cards for every entry of the user's portfolio (crypto)
+    for crypto in crypto_data:
+        profit_loss = crypto['raw_profit_loss']
+        profit_loss_pct = crypto['raw_profit_loss_pct']
+        is_profit = profit_loss >= 0
+        
+        card_html = f"""
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-symbol">{crypto['Symbol']}</div>
+                    <div class="stock-price-info">
+                        <span class="stock-current-price">{crypto['Current Price']}</span>
+                        <span class="stock-change {'positive' if is_profit else 'negative'}">
+                            {profit_loss_pct:.2f}%
+                        </span>
+                    </div>
+                </div>
+                <div class="stock-info">
+                    <div class="stock-line">
+                        <span class="label">Amount</span>
+                        <span class="value">{crypto['Crypto Amount']}</span>
+                    </div>
+                    <div class="stock-line">
+                        <span class="label">Avg Price</span>
+                        <span class="value">{crypto['Avg Price']}</span>
+                    </div>
+                    <div class="stock-line">
+                        <span class="label">Market Value</span>
+                        <span class="value">{crypto['Value']}</span>
+                    </div>
+                    <div class="stock-line">
+                        <span class="label">P/L</span>
+                        <span class="value {'positive' if is_profit else 'negative'}">
+                            ${profit_loss:,.2f} ({profit_loss_pct:.2f}%)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+    
+    # Close grid container
+    st.markdown('</div>', unsafe_allow_html=True)

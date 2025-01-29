@@ -124,6 +124,13 @@ class Database:
             (user_id,)
         )
         return cursor.fetchall()
+    
+    def get_crypto_data(self,user_id):
+        cursor = self.conn.execute(
+            'SELECT symbol, crypto_amount, avg_price FROM crypto_portfolio WHERE user_id = ?',
+            (user_id,)
+        )
+        return cursor.fetchall()
 
     # Function to update the portfolio. When a user buys or sells a stock, update_portfolio function is called to change the user's portfolio.
     def update_portfolio(self, user_id, symbol, shares, price, is_buy):
@@ -140,12 +147,11 @@ class Database:
         
         if is_buy:
             if existing:
-                new_shares = existing[0] + shares  # existing is a list with elements [current_shares, avg_price]. Therefore existing[0] gives the current number of shares.
-                old_shares = existing[1]
-                only_new_share_price = new_shares * price  # caluculating the new price only for the stocks that were bought latest
-                new_avg_price = ((old_shares + only_new_share_price)) / new_shares  # Calculating the average
-
-                # Updating the portfolio
+                new_shares = existing[0] + shares  # Total new share count
+                old_total_value = existing[0] * existing[1]  # Old shares * Old avg price
+                new_purchase_value = shares * price  # New shares * New price
+                new_avg_price = (old_total_value + new_purchase_value) / new_shares
+                
                 self.conn.execute(
                     'UPDATE portfolio SET shares=?, avg_price=? WHERE user_id=? AND symbol=?',
                     (new_shares, new_avg_price, user_id, symbol)

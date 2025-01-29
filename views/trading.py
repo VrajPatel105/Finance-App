@@ -113,11 +113,14 @@ def trading_page():
                         
                         with col1:
                             # Clean up the title and remove any special text
-                            title = item['title'].replace('[Read more]', '').strip()
+                            title = item.get('title', '').replace('[Read more]', '').strip()
                             
-                            # Clean up the summary - remove unwanted text and format
+                            # Clean up the summary - safely handle None values
                             summary = item.get('summary', '')
-                            summary = summary.replace('In This Article:', '').replace('\n', ' ').strip()
+                            if summary:  # Only process if summary exists
+                                summary = summary.replace('In This Article:', '').replace('\n', ' ').strip()
+                            else:
+                                summary = "No summary available."
                             
                             # Use the published time from the news item instead of current time
                             published_time = item.get('published', datetime.now().strftime('%Y-%m-%d %H:%M'))
@@ -128,7 +131,7 @@ def trading_page():
                             
                             {summary}
                             
-                            <a href="{item['link']}" target="_blank" style="color: #3b82f6; text-decoration: none;">Read Article</a>
+                            <a href="{item.get('link', '#')}" target="_blank" style="color: #3b82f6; text-decoration: none;">Read Article</a>
                             """, unsafe_allow_html=True)
                         
                         if item.get('image'):
