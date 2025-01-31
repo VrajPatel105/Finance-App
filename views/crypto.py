@@ -9,8 +9,6 @@ from models.crypto_data import load_crypto_details
 
 import streamlit as st
 import requests
-from PIL import Image
-import io
 
 def load_crypto():
     st.title('Cryptocurrencies')

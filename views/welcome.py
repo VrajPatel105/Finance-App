@@ -3,175 +3,314 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import numpy as np
 
+def create_feature_card(icon, title, description):
+    return f'''
+        <div class="feature-card" style="
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        ">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
+            <h3 style="color: #6366f1; font-size: 1.25rem; margin-bottom: 0.5rem;">
+                {title}
+            </h3>
+            <p style="color: #94a3b8;">
+                {description}
+            </p>
+        </div>
+    '''
+
+def create_stat_card(label, value, change):
+    return f'''
+        <div style="
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        ">
+            <div style="font-size: 0.875rem; color: #94a3b8;">{label}</div>
+            <div style="font-size: 1.5rem; color: #6366f1; font-weight: 600;">{value}</div>
+            <div style="font-size: 0.875rem; color: #22c55e;">↑ {change}</div>
+        </div>
+    '''
 
 def welcome_page():
-    # Custom CSS remains same but adjust some heights
+    # Base styles
     st.markdown("""
         <style>
         .stApp {
-            background: linear-gradient(to bottom, #0f172a, #1e293b);
-            color: #e2e8f0;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
         }
         
-        .welcome-header {
-            background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
-            padding: 1rem;
-            border-radius: 15px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        .hero-section {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 32px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
         
-        .feature-card {
-            background: rgba(30, 41, 59, 0.8);
-            padding: 0.8rem;
+        .modern-button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.75rem 1.5rem;
             border-radius: 12px;
-            border-left: 4px solid #3b82f6;
-            margin-bottom: 0.7rem;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .feature-grid {
+        .modern-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.7rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
             margin: 1rem 0;
         }
         
-        .auth-buttons {
-            margin-top: 1rem;
-        }
-        
-        .stButton button {
-            height: 2.5rem;
-            font-size: 1rem;
-            font-weight: 500;
-            background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-            border: none;
-            transition: all 0.3s;
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Welcome header - made more compact
-    st.markdown("""
-        <div class="welcome-header">
-            <h1 style='font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem;'>Welcome to Finch</h1>
-            <p style='font-size: 1rem; opacity: 0.9;'> Where Pennies Grow Wings</p>
+    # Hero Section with functional buttons
+    st.markdown('''
+        <div class="hero-section">
+            <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; color: white;">
+                Welcome to Finch
+            </h1>
+            <p style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 2rem;">
+                Elevate Your Trading Experience with AI-Powered Insights
+            </p>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # Create main layout
-    col1, col2 = st.columns([1, 1], gap="large")
-    
+    ''', unsafe_allow_html=True)
+
+    # Hero buttons with click handlers
+    hero_col1, hero_col2 = st.columns(2)
+    with hero_col1:
+        if st.button("Get Started", use_container_width=True, type="primary"):
+            st.session_state.current_page = 'register'
+            st.rerun()
+    with hero_col2:
+        if st.button("Learn More", use_container_width=True):
+            st.session_state.current_page = 'about'
+            st.rerun()
+
+    # Main Content Layout
+    col1, col2 = st.columns([5, 7])
+
     with col1:
-        # Welcome message and buttons at the top
-        st.markdown("""
-        <div class="feature-card">
-            <h3 style='color: #3b82f6; font-size: 1.2rem;'>🚀 Start Your Trading Journey Today!</h3>
-            <p style='font-size: 0.9rem;'>Experience the power of intelligent trading</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Feature Cards using container
+        features_container = st.container()
         
-        # Login/Register buttons moved up
-        col1_1, col1_2 = st.columns(2)
-        with col1_1:
-            if st.button("🔐 Login", type="primary", use_container_width=True):
-                st.session_state.current_page = 'login'
-                st.rerun()
-        with col1_2:
-            if st.button("✨ Register", use_container_width=True):
-                st.session_state.current_page = 'register'
-                st.rerun()
+        # Feature 1
+        features_container.markdown(
+            create_feature_card(
+                "🚀",
+                "Smart Trading",
+                "AI-powered insights and real-time market analysis to optimize your trades"
+            ),
+            unsafe_allow_html=True
+        )
+        
+        # Feature 2
+        features_container.markdown(
+            create_feature_card(
+                "📊",
+                "Advanced Analytics",
+                "Professional-grade tools and detailed market analysis at your fingertips"
+            ),
+            unsafe_allow_html=True
+        )
+        
+        # Feature 3
+        features_container.markdown(
+            create_feature_card(
+                "🛡️",
+                "Enterprise Security",
+                "Bank-grade encryption and advanced security protocols to protect your assets"
+            ),
+            unsafe_allow_html=True
+        )
 
-        # Features in a 2x2 grid
-        st.markdown("""
-        <div style='margin-top: 1rem;'>
-            <h3 style='color: #3b82f6; font-size: 1.2rem; margin-bottom: 0.5rem;'>Platform Features</h3>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4 style='color: #3b82f6; font-size: 1rem;'>📊 Real-time Data</h4>
-                    <p style='font-size: 0.8rem;'>Live market updates</p>
-                </div>
-                <div class="feature-card">
-                    <h4 style='color: #3b82f6; font-size: 1rem;'>💼 Portfolio</h4>
-                    <p style='font-size: 0.8rem;'>Track investments easily</p>
-                </div>
-                <div class="feature-card">
-                    <h4 style='color: #3b82f6; font-size: 1rem;'>📈 Analytics</h4>
-                    <p style='font-size: 0.8rem;'>Professional tools</p>
-                </div>
-                <div class="feature-card">
-                    <h4 style='color: #3b82f6; font-size: 1rem;'>🔒 Security</h4>
-                    <p style='font-size: 0.8rem;'>Enterprise protection</p>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Enhanced chart in column 2
     with col2:
-        # Generate sample data
+        # Chart Data
         dates = [(datetime.now() - timedelta(days=x)).strftime('%Y-%m-%d') for x in range(30, 0, -1)]
         base_price = 100
-        prices = [base_price + np.random.normal(0, 2) + (i/10) for i in range(30)]
+        prices = [base_price + np.random.normal(0, 2) + (i/8) for i in range(30)]
         
-        fig = go.Figure(data=[go.Candlestick(
+        fig = go.Figure()
+        
+        # Candlestick chart
+        fig.add_trace(go.Candlestick(
             x=dates,
             open=[p * (1 - np.random.uniform(0, 0.02)) for p in prices],
             high=[p * (1 + np.random.uniform(0, 0.03)) for p in prices],
             low=[p * (1 - np.random.uniform(0, 0.03)) for p in prices],
-            close=prices
-        )])
-        
-        # Reduced chart height
+            close=prices,
+            increasing_line_color='#22c55e',
+            decreasing_line_color='#ef4444',
+            name='Price'
+        ))
+
+        # Moving averages
+        ma7 = np.convolve(prices, np.ones(7)/7, mode='valid')
+        ma21 = np.convolve(prices, np.ones(21)/21, mode='valid')
+
+        fig.add_trace(go.Scatter(
+            x=dates[6:],
+            y=ma7,
+            line=dict(color='#6366f1', width=1.5),
+            name='7-day MA'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=dates[20:],
+            y=ma21,
+            line=dict(color='#8b5cf6', width=1.5),
+            name='21-day MA'
+        ))
+
         fig.update_layout(
             title={
-                'text': "Live Market Trends",
-                'y':0.95,
-                'x':0.5,
+                'text': "Live Market Analysis",
+                'y': 0.95,
+                'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top',
-                'font': {'size': 20, 'color': '#e2e8f0'}
+                'font': {'size': 24, 'color': '#f8fafc'}
             },
-            yaxis_title="Stock Price ($)",
-            template="plotly_dark",
-            height=400,  # Reduced height
-            margin=dict(l=20, r=20, t=50, b=20),
+            template='plotly_dark',
+            height=500,
             paper_bgcolor='rgba(30, 41, 59, 0.3)',
             plot_bgcolor='rgba(30, 41, 59, 0.3)',
             xaxis_rangeslider_visible=False,
-            font={'color': '#e2e8f0'}
+            margin=dict(l=20, r=20, t=60, b=20),
+            font={'color': '#f8fafc'},
+            xaxis_gridcolor='rgba(255, 255, 255, 0.1)',
+            yaxis_gridcolor='rgba(255, 255, 255, 0.1)',
+            showlegend=True,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01,
+                bgcolor='rgba(30, 41, 59, 0.7)'
+            )
         )
-        
-        # Add moving averages
-        ma20 = np.convolve(prices, np.ones(5)/5, mode='valid')
-        fig.add_trace(go.Scatter(
-            x=dates[4:],
-            y=ma20,
-            name='5-day MA',
-            line=dict(color='#3b82f6', width=1.5)
-        ))
 
-        st.plotly_chart(fig, use_container_width=True)
+        # Display chart
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
-        # Compact market statistics
+        # Stats Section using columns
         st.markdown("""
-        <div class="feature-card" style="margin-top: 0.5rem;">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                <div>
-                    <div style="font-size: 0.8rem;">24h Volume</div>
-                    <div style="color: #3b82f6; font-size: 1rem;">$12.5M</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.8rem;">Market Cap</div>
-                    <div style="color: #3b82f6; font-size: 1rem;">$158.3M</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.8rem;">24h Change</div>
-                    <div style="color: #22c55e; font-size: 1rem;">+2.35%</div>
-                </div>
-            </div>
-        </div>
+            <style>
+            .stat-card {
+                background: rgba(30, 41, 59, 0.5);
+                border-radius: 16px;
+                padding: 1.25rem;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                margin: 0.5rem 0;
+            }
+            </style>
         """, unsafe_allow_html=True)
+        
+        stat1, stat2, stat3 = st.columns(3)
+        
+        with stat1:
+            st.markdown("""
+                <div class="stat-card">
+                    <div style="font-size: 0.875rem; color: #94a3b8;">24h Volume</div>
+                    <div style="font-size: 1.5rem; color: #6366f1; font-weight: 600;">$18.5M</div>
+                    <div style="font-size: 0.875rem; color: #22c55e;">↑ 12.3%</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        with stat2:
+            st.markdown("""
+                <div class="stat-card">
+                    <div style="font-size: 0.875rem; color: #94a3b8;">Market Cap</div>
+                    <div style="font-size: 1.5rem; color: #6366f1; font-weight: 600;">$245.8M</div>
+                    <div style="font-size: 0.875rem; color: #22c55e;">↑ 8.7%</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        with stat3:
+            st.markdown("""
+                <div class="stat-card">
+                    <div style="font-size: 0.875rem; color: #94a3b8;">Active Traders</div>
+                    <div style="font-size: 1.5rem; color: #6366f1; font-weight: 600;">12.4K</div>
+                    <div style="font-size: 0.875rem; color: #22c55e;">↑ 5.2%</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # Why Choose Finch Section
+    st.markdown('''
+        <div style="background: rgba(30, 41, 59, 0.7); border-radius: 24px; padding: 2rem; margin: 2rem 0;">
+            <h2 style="color: #f8fafc; font-size: 2rem; text-align: center; margin-bottom: 2rem;">
+                Why Choose Finch?
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+    ''', unsafe_allow_html=True)
+
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown(create_feature_card("💡", "AI-Powered", 
+                   "Advanced algorithms for smarter trading decisions"), unsafe_allow_html=True)
+    with col2:
+        st.markdown(create_feature_card("⚡", "Real-Time", 
+                   "Instant market updates and notifications"), unsafe_allow_html=True)
+    with col3:
+        st.markdown(create_feature_card("🎯", "Precision", 
+                   "Accurate analysis and predictions"), unsafe_allow_html=True)
+    with col4:
+        st.markdown(create_feature_card("🔒", "Secure", 
+                   "Enterprise-grade security protocols"), unsafe_allow_html=True)
+
+    # Call to Action Section
+    st.markdown('''
+        <div style="
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        ">
+            <h2 style="color: #f8fafc; font-size: 2.5rem; margin-bottom: 1rem;">
+                Ready to Start Trading?
+            </h2>
+            <p style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 2rem;">
+                Join thousands of successful traders on Finch
+            </p>
+    # Create Login/Register buttons with click handlers
+    login_col, register_col = st.columns(2)
+    
+    with login_col:
+        if st.button("🔐 Login", use_container_width=True, type="primary"):
+            st.session_state.current_page = 'login'
+            st.rerun()
+            
+    with register_col:
+        if st.button("✨ Register", use_container_width=True):
+            st.session_state.current_page = 'register'
+            st.rerun()
+        </div>
+    ''', unsafe_allow_html=True)

@@ -1,14 +1,62 @@
 import streamlit as st
 import plotly.graph_objects as go
 from models.stock import StockData
-from database.db_manager import Database
 import requests
+from database.connection import get_database
+
+# Cache portfolio data fetching
+@st.cache_data(ttl="5m")  # Cache for 5 minutes
+def fetch_portfolio_data(_db, user_id):
+    return _db.get_portfolio(user_id)
+
+@st.cache_data(ttl="5m")
+def fetch_crypto_data(_db, user_id):
+    return _db.get_crypto_data(user_id)
+
+# Batch fetch stock prices
+@st.cache_data(ttl="5m")
+def fetch_current_prices(symbols):
+    """Batch fetch stock prices for multiple symbols"""
+    all_data = {}
+    for symbol in symbols:
+        hist_data, _ = StockData.get_stock_data(symbol, period='1d')
+        if hist_data is not None and not hist_data.empty:
+            all_data[symbol] = hist_data['Close'].iloc[-1]
+    return all_data
+
+# Batch fetch crypto prices
+@st.cache_data(ttl="5m")
+def fetch_crypto_prices(symbols):
+    """Batch fetch crypto prices"""
+    headers = {
+        'X-CMC_PRO_API_KEY': '440c12ff-74f9-4ff9-92a1-07345791e1cb',
+        'Accept': 'application/json'
+    }
+    
+    # Join all symbols for a single API call
+    symbol_string = ','.join(symbols)
+    response = requests.get(
+        'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+        headers=headers,
+        params={'symbol': symbol_string}
+    )
+    data = response.json()
+    
+    prices = {}
+    for symbol in symbols:
+        if symbol in data['data']:
+            prices[symbol] = data['data'][symbol]['quote']['USD']['price']
+    return prices
+
+@st.cache_data(ttl="5m")
+def fetch_portfolio_history(_db, user_id, time_period):
+    return StockData.get_portfolio_history(_db, user_id, time_period)
 
 # Function for loading the portfolio page once user is logged in
 def portfolio_page():
     st.title('Portfolio Overview')
 
-    db = Database()
+    db = get_database()
     
     # Time period selector in a smaller column
     col1, col2 = st.columns([1, 3])
@@ -26,15 +74,12 @@ def portfolio_page():
             index=4  # Default to 1 Year
         )
     
-    # Get current portfolio holdings for the specific user.
-    portfolio = db.get_portfolio(st.session_state.user['id'])
-    
-    # Create a placeholder for the chart
+    # Create placeholders for content
     chart_placeholder = st.empty()
     
     # Show loading message while fetching data
     with st.spinner('Loading portfolio data...'):
-        hist_portfolio = StockData.get_portfolio_history(
+        hist_portfolio = fetch_portfolio_history(
             db, 
             st.session_state.user['id'], 
             time_periods[selected_period]
@@ -115,28 +160,29 @@ def portfolio_page():
                 delta=f"{(profit_loss/latest['invested']*100 if latest['invested'] != 0 else 0):.2f}%"
             )
     
-    # Displaying the current holdings of the user with styled cards
-
+    # Get portfolio data
+    portfolio = fetch_portfolio_data(db, st.session_state.user['id'])
+    
     st.markdown('---')
 
-
+    # Process and display stock portfolio
     if portfolio:
-        st.subheader("Current Holdings")
         st.markdown("<h1 style='text-align: center;'>STOCKS</h1>", unsafe_allow_html=True)
         
-        # Show loading message while fetching current holdings data
-        with st.spinner('Loading current holdings...'):
+        with st.spinner('Loading current holdings'):
+            # Prepare symbols for batch fetching
+            stock_symbols = [symbol for symbol, _, _ in portfolio]
+            stock_prices = fetch_current_prices(stock_symbols)
+            
             portfolio_data = []
-            # Here we are calling the get stock data function and the function returns historic data in form of a dataframe and the second this is _ because we need it.
+            # Here we are calling the get stock data function and the function returns historic data in form of a dataframe
             for symbol, shares, avg_price in portfolio:
-                hist_data, _ = StockData.get_stock_data(symbol, period='1d')
-                if hist_data is not None and not hist_data.empty:
-                    current_price = hist_data['Close'].iloc[-1] # Since hist_data is a dataframe, we are fetching the last row by iloc[-1] in the 'Close' column
+                if symbol in stock_prices:
+                    current_price = stock_prices[symbol]
                     position_value = shares * current_price
                     profit_loss = (current_price - avg_price) * shares
                     profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
                     
-                    # Appending all the above defined value into a dataframe and then plotting the stock cards ( This are for the stocks that are owned by the user)
                     portfolio_data.append({
                         'Symbol': symbol,
                         'Shares': f"{shares:,.2f}",
@@ -149,180 +195,48 @@ def portfolio_page():
                     })
             
             if portfolio_data:
-                create_stock_cards_stock(portfolio_data)
+                create_asset_cards(portfolio_data)
     else:
         st.info('Your portfolio is empty. Start trading to build your portfolio!')
-
 
     st.markdown('---')
     st.markdown("<h1 style='text-align: center;'>CRYPTO</h1>", unsafe_allow_html=True)
 
-
-    crypto_retrieved_data = db.get_crypto_data(st.session_state.user['id'])
+    # Process and display crypto portfolio
+    crypto_retrieved_data = fetch_crypto_data(db, st.session_state.user['id'])
 
     if crypto_retrieved_data:
-        with st.spinner('Loading current holdings...'):
-            crypto_data = []
-
-        for symbol,crypto_amount, avg_price in crypto_retrieved_data:
-
-           headers = {
-           'X-CMC_PRO_API_KEY': '440c12ff-74f9-4ff9-92a1-07345791e1cb',
-           'Accept': 'application/json'
-           }
-            # problem to fix: This for loop will hit the api everytime for a new symbol. But for now, since we are not going to make a lot of calls, it's not a problem.
-           response = requests.get(
-               'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-               headers=headers,
-               params={'symbol': symbol}
-           )
-           data = response.json()
-
-           current_price = data['data'][symbol]['quote']['USD']['price']
-           position_value = current_price * crypto_amount
-           profit_loss = (current_price - avg_price) * crypto_amount
-           profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
-
-           crypto_data.append({
-                            'Symbol': symbol,
-                            'Crypto Amount': f"{crypto_amount:,.2f}",
-                            'Avg Price': f'${avg_price:,.2f}',
-                            'Current Price': f'${current_price:,.2f}',
-                            'Value': f'${position_value:,.2f}',
-                            'raw_profit_loss': profit_loss,
-                            'raw_profit_loss_pct': profit_loss_pct,
-                            'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
-                        })
-        
-        if crypto_retrieved_data:
-                create_stock_cards_crypto(crypto_data)
-        else:
-            st.info('Your portfolio is empty. Start trading to build your portfolio!')
-
-
-def create_stock_cards_stock(portfolio_data):
-        # Html code for styled stock cards
-        st.markdown("""
-        <style>
-            .stock-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1rem;
-                margin: 0 auto;
-            }
-            .stock-card {
-                background: #161b22;
-                border: 1px solid #30363d;
-                border-radius: 8px;
-                padding: 1.25rem;
-                margin-bottom: 0.5rem;
-            }
-            .stock-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-                border-color: #58a6ff;
-            }
-            .stock-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid rgba(48, 54, 61, 0.5);
-            }
-            .stock-symbol {
-                font-size: 1.25rem;
-                font-weight: bold;
-                color: #58a6ff;
-            }
-            .stock-price-info {
-                text-align: right;
-            }
-            .stock-current-price {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #c9d1d9;
-                margin-bottom: 0.5rem;
-            }
-            .stock-change {
-                font-size: 1rem;
-                padding: 0.25rem 0.75rem;
-                border-radius: 999px;
-                display: inline-block;
-            }
-            .stock-info {
-                display: grid;
-                gap: 0.5rem;
-            }
-            .stock-line {
-                display: flex;
-                justify-content: space-between;
-                padding: 0.25rem 0;
-                color: #8b949e;
-                font-size: 0.9rem;
-            }
-            .positive {
-                color: #238636;
-                background: rgba(35, 134, 54, 0.1);
-            }
-            .negative {
-                color: #f85149;
-                background: rgba(248, 81, 73, 0.1);
-            }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        # Start grid container
-        st.markdown('<div class="stock-grid">', unsafe_allow_html=True)
-        
-        # Creating seperate cards for every entry of the user's portfolio (stocks)
-        for stock in portfolio_data:
-            profit_loss = stock['raw_profit_loss']
-            profit_loss_pct = stock['raw_profit_loss_pct']
-            is_profit = profit_loss >= 0
+        with st.spinner('Loading current holdings'):
+            # Prepare symbols for batch fetching
+            crypto_symbols = [symbol for symbol, _, _ in crypto_retrieved_data]
+            crypto_prices = fetch_crypto_prices(crypto_symbols)
             
-            card_html = f"""
-                <div class="stock-card">
-                    <div class="stock-header">
-                        <div class="stock-symbol">{stock['Symbol']}</div>
-                        <div class="stock-price-info">
-                            <span class="stock-current-price">{stock['Current Price']}</span>
-                            <span class="stock-change {'positive' if is_profit else 'negative'}">
-                                {profit_loss_pct:.2f}%
-                            </span>
-                        </div>
-                    </div>
-                    <div class="stock-info">
-                        <div class="stock-line">
-                            <span class="label">Shares</span>
-                            <span class="value">{stock['Shares']}</span>
-                        </div>
-                        <div class="stock-line">
-                            <span class="label">Avg Price</span>
-                            <span class="value">{stock['Avg Price']}</span>
-                        </div>
-                        <div class="stock-line">
-                            <span class="label">Market Value</span>
-                            <span class="value">{stock['Value']}</span>
-                        </div>
-                        <div class="stock-line">
-                            <span class="label">P/L</span>
-                            <span class="value {'positive' if is_profit else 'negative'}">
-                                ${profit_loss:,.2f} ({profit_loss_pct:.2f}%)
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            """
-            st.markdown(card_html, unsafe_allow_html=True)
-        
-        # Close grid container
-        st.markdown('</div>', unsafe_allow_html=True)
+            crypto_data = []
+            for symbol, crypto_amount, avg_price in crypto_retrieved_data:
+                if symbol in crypto_prices:
+                    current_price = crypto_prices[symbol]
+                    position_value = current_price * crypto_amount
+                    profit_loss = (current_price - avg_price) * crypto_amount
+                    profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
 
+                    crypto_data.append({
+                        'Symbol': symbol,
+                        'Crypto Amount': f"{crypto_amount:,.2f}",
+                        'Avg Price': f'${avg_price:,.2f}',
+                        'Current Price': f'${current_price:,.2f}',
+                        'Value': f'${position_value:,.2f}',
+                        'raw_profit_loss': profit_loss,
+                        'raw_profit_loss_pct': profit_loss_pct,
+                        'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
+                    })
+            
+            if crypto_data:
+                create_asset_cards(crypto_data)
+            else:
+                st.info('Your portfolio is empty. Start trading to build your portfolio!')
 
-def create_stock_cards_crypto(crypto_data):
-    # Html code for styled crypto cards with new design
+def create_asset_cards(data):
+    # CSS styles for the cards
     st.markdown("""
     <style>
         .stock-grid {
@@ -413,18 +327,22 @@ def create_stock_cards_crypto(crypto_data):
     # Start grid container
     st.markdown('<div class="stock-grid">', unsafe_allow_html=True)
     
-    # Creating separate cards for every entry of the user's portfolio (crypto)
-    for crypto in crypto_data:
-        profit_loss = crypto['raw_profit_loss']
-        profit_loss_pct = crypto['raw_profit_loss_pct']
+    # Create cards for each asset
+    for asset in data:
+        profit_loss = asset['raw_profit_loss']
+        profit_loss_pct = asset['raw_profit_loss_pct']
         is_profit = profit_loss >= 0
+        
+        # Determine which quantity label to use (Shares or Amount)
+        quantity_label = 'Amount' if 'Crypto Amount' in asset else 'Shares'
+        quantity_value = asset.get('Crypto Amount', asset.get('Shares'))
         
         card_html = f"""
             <div class="stock-card">
                 <div class="stock-header">
-                    <div class="stock-symbol">{crypto['Symbol']}</div>
+                    <div class="stock-symbol">{asset['Symbol']}</div>
                     <div class="stock-price-info">
-                        <span class="stock-current-price">{crypto['Current Price']}</span>
+                        <span class="stock-current-price">{asset['Current Price']}</span>
                         <span class="stock-change {'positive' if is_profit else 'negative'}">
                             {profit_loss_pct:.2f}%
                         </span>
@@ -432,16 +350,16 @@ def create_stock_cards_crypto(crypto_data):
                 </div>
                 <div class="stock-info">
                     <div class="stock-line">
-                        <span class="label">Amount</span>
-                        <span class="value">{crypto['Crypto Amount']}</span>
+                        <span class="label">{quantity_label}</span>
+                        <span class="value">{quantity_value}</span>
                     </div>
                     <div class="stock-line">
                         <span class="label">Avg Price</span>
-                        <span class="value">{crypto['Avg Price']}</span>
+                        <span class="value">{asset['Avg Price']}</span>
                     </div>
                     <div class="stock-line">
                         <span class="label">Market Value</span>
-                        <span class="value">{crypto['Value']}</span>
+                        <span class="value">{asset['Value']}</span>
                     </div>
                     <div class="stock-line">
                         <span class="label">P/L</span>

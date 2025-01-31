@@ -1,8 +1,6 @@
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
-import plotly.graph_objects as go
-import streamlit as st
 import requests
 
 class StockData:

@@ -1,10 +1,11 @@
 import streamlit as st
+
 st.set_page_config(
        page_title="Trading Platform",
        page_icon='resources/finch.ico',
        layout="wide"
    )
-from database.db_manager import Database
+from database.connection import get_database
 from views.auth import register_page, login_page, logout
 from views.welcome import welcome_page
 from views.trading import trading_page
@@ -12,6 +13,7 @@ from views.portfolio import portfolio_page
 from views.crypto import load_crypto
 from views.ai_assistant import Assistant
 # Function to load a side bar containing a portfolio, trade and logout button
+
 
 
 def load_user_info():
@@ -149,7 +151,7 @@ def init_session_state():
 def main():
    
    init_session_state()
-   db = Database()
+   db = get_database()
 
    if not st.session_state.logged_in:
        if st.session_state.current_page == 'register':

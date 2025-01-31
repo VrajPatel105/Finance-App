@@ -1,6 +1,5 @@
 import sqlite3
 import hashlib
-from datetime import datetime
 
 class Database:
     def __init__(self):

@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime
-from database.db_manager import Database
+from database.connection import get_database
 
 def load_crypto_details(user_input):
    st.markdown("""
@@ -85,7 +85,7 @@ def load_crypto_details(user_input):
                                 if crypto_cost > st.session_state.user['balance']:
                                     st.error('Insufficient funds!')
                                 else:
-                                    db = Database()
+                                    db = get_database()
                                     # Assuming a method to handle transaction
                                     if db.update_crypto_portfolio(st.session_state.user['id'],user_input, crypto_amount, crypto_cost, True):
                                         st.success('Purchase successful!')
@@ -110,7 +110,7 @@ def load_crypto_details(user_input):
                         
                         if sell_submit_btn:
                             if 'user' in st.session_state and 'balance' in st.session_state.user:
-                                db = Database()
+                                db = get_database()
                                 if db.update_crypto_portfolio(st.session_state.user['id'], user_input, sell_amount, sell_value, False):
                                     st.success('Sold successfully!')
                                     st.session_state.user['balance'] += crypto_cost
