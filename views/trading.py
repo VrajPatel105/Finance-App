@@ -4,6 +4,9 @@ from utils.formatters import format_number
 from utils.stock_utils import create_stock_chart
 from database.connection import get_database
 from datetime import datetime
+from streamlit_lottie import st_lottie
+import requests
+import time
 
 
 @st.cache_data(ttl="5m")
@@ -178,7 +181,46 @@ def trading_page():
                 # Display chart
                 st.plotly_chart(create_stock_chart(hist_data, symbol))
             
-            # Trading form
+                def load_transaction_complete_lottie():
+                    def load_lottieurl(url: str):
+                            r = requests.get(url)
+                            r.raise_for_status()
+                            return r.json()
+
+                    transaction_complete_lottie = "https://lottie.host/2b78dd02-e9a2-4f8a-81a7-7fa44e1f4b7e/9fHByB2zdS.json"
+
+                    
+                    st.markdown('<div class="lottie-overlay"></div>', unsafe_allow_html=True)
+                    lottie_json = load_lottieurl(transaction_complete_lottie)
+
+                    st.markdown("""
+                    <style>
+                    .lottie-overlay {
+                        position: fixed;
+                        top:: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+                    if lottie_json:
+                        st_lottie(
+                            lottie_json,
+                            speed=1,
+                            loop=True,
+                            height=300,
+                            width=300,
+                            key="lottie"
+                        )
+                        time.sleep(1) 
+
+                #Forms for trading -> buy and sell
                 col1, col2 = st.columns(2)
 
                 # for buying the stock
@@ -200,6 +242,8 @@ def trading_page():
                                 # Calling the update_portfolio function from the database with the argments as the user's id symbol, shares, current_price, and if it's a buy or a sell
                                 if db.update_portfolio(st.session_state.user['id'], symbol, shares_to_buy, current_price, True):
                                     st.success(f'Successfully bought {shares_to_buy} shares of {symbol}')
+                                    load_transaction_complete_lottie()
+
                                     st.session_state.user['balance'] -= total_share_cost  # substracting the amount from the user's total balance
                                     st.rerun()
                                 else:
@@ -222,6 +266,7 @@ def trading_page():
                             # Firstly checking if the user has enough shares to sell. If not then error
                             if db.update_portfolio(st.session_state.user['id'], symbol, shares_to_sell, current_price, False):
                                 st.success(f'Successfully Sold {shares_to_sell} shares of {symbol}')  # User had shares for that stocks so sell 
+                                load_transaction_complete_lottie()
                                 st.session_state.user['balance'] += total_share_cost_for_selling
                                 st.rerun()
                             else:

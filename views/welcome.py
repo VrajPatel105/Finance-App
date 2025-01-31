@@ -2,6 +2,8 @@ import streamlit as st
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import numpy as np
+from streamlit.components.v1 import html
+
 
 def create_feature_card(icon, title, description):
     return f'''
@@ -10,7 +12,7 @@ def create_feature_card(icon, title, description):
             border-radius: 20px;
             padding: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             transition: transform 0.3s ease;
         ">
             <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
@@ -40,6 +42,7 @@ def create_stat_card(label, value, change):
 
 def welcome_page():
     # Base styles
+    st.snow() # inbuild snow function just for funn.
     st.markdown("""
         <style>
         .stApp {
@@ -101,16 +104,30 @@ def welcome_page():
         </div>
     ''', unsafe_allow_html=True)
 
-    # Hero buttons with click handlers
-    hero_col1, hero_col2 = st.columns(2)
-    with hero_col1:
-        if st.button("Get Started", use_container_width=True, type="primary"):
+    login_col, register_col = st.columns(2)
+
+    with login_col:
+        if st.button("🔐 Login", key="login_button", use_container_width=True, type="primary"):
+            st.session_state.current_page = 'login'
+            st.rerun()
+
+    with register_col:
+        if st.button("✨ Register", key="register_button", use_container_width=True):
             st.session_state.current_page = 'register'
             st.rerun()
-    with hero_col2:
-        if st.button("Learn More", use_container_width=True):
-            st.session_state.current_page = 'about'
-            st.rerun()
+
+    st.markdown("""
+        <script>
+            function moveButtons() {
+                var loginButton = document.querySelector('button[kind="primary"]');
+                var registerButton = document.querySelector('button:not([kind="primary"])');
+                document.getElementById('login-button').appendChild(loginButton);
+                document.getElementById('register-button').appendChild(registerButton);
+            }
+            setTimeout(moveButtons, 100);
+        </script>
+    """, unsafe_allow_html=True)
+
 
     # Main Content Layout
     col1, col2 = st.columns([5, 7])
@@ -274,7 +291,7 @@ def welcome_page():
     
     with col1:
         st.markdown(create_feature_card("💡", "AI-Powered", 
-                   "Advanced algorithms for smarter trading decisions"), unsafe_allow_html=True)
+                   "Advanced algorithms for smarter trading "), unsafe_allow_html=True)
     with col2:
         st.markdown(create_feature_card("⚡", "Real-Time", 
                    "Instant market updates and notifications"), unsafe_allow_html=True)
@@ -285,32 +302,50 @@ def welcome_page():
         st.markdown(create_feature_card("🔒", "Secure", 
                    "Enterprise-grade security protocols"), unsafe_allow_html=True)
 
-    # Call to Action Section
-    st.markdown('''
-        <div style="
+
+    st.markdown("""
+        <style>
+        .cta-container {
             background: rgba(30, 41, 59, 0.7);
             border-radius: 24px;
             padding: 2rem;
             text-align: center;
             margin-top: 2rem;
-        ">
-            <h2 style="color: #f8fafc; font-size: 2.5rem; margin-bottom: 1rem;">
-                Ready to Start Trading?
-            </h2>
-            <p style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 2rem;">
-                Join thousands of successful traders on Finch
-            </p>
-    # Create Login/Register buttons with click handlers
-    login_col, register_col = st.columns(2)
-    
-    with login_col:
-        if st.button("🔐 Login", use_container_width=True, type="primary"):
-            st.session_state.current_page = 'login'
-            st.rerun()
-            
-    with register_col:
-        if st.button("✨ Register", use_container_width=True):
-            st.session_state.current_page = 'register'
-            st.rerun()
+            margin-bottom : 1.5rem;
+        }
+        .cta-title {
+            color: #f8fafc;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .cta-text {
+            color: #94a3b8;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .stButton > button {
+            width: 100%;
+            border-radius: 20px;
+            height: 3rem;
+            font-size: 1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <div class="cta-container">
+            <h2 class="cta-title">Ready to Start Trading?</h2>
+            <p class="cta-text">Join thousands of successful traders on Finch</p>
+            <div class="button-container">
+                <div id="login-button"></div>
+                <div id="register-button"></div>
+            </div>
         </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+    
