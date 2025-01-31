@@ -132,10 +132,8 @@ def create_sidebar():
 
         if st.button('🤖 AI Assistant'):
             st.session_state.current_page = 'ai_assistant'
-            
-            
+                        
         st.sidebar.button('🚪 Logout', on_click=logout)
-
 
 
 def init_session_state():
