@@ -281,41 +281,41 @@ def trading_page():
         st.markdown("---")
         st.subheader(f"Latest News for {symbol}")
         
-        with st.spinner('Loading news...'):
-            news = StockData.get_stock_news(symbol)
-            
-            if news:
-                for item in news:
-                    with st.container():
-                        col1, col2 = st.columns([7,3])  # 70% for text, 30% for image
+        
+        news = StockData.get_stock_news(symbol)
+        
+        if news:
+            for item in news:
+                with st.container():
+                    col1, col2 = st.columns([7,3])  # 70% for text, 30% for image
+                    
+                    with col1:
+                        # Clean up the title and remove any special text
+                        title = item.get('title', '').replace('[Read more]', '').strip()
                         
-                        with col1:
-                            # Clean up the title and remove any special text
-                            title = item.get('title', '').replace('[Read more]', '').strip()
-                            
-                            # Clean up the summary - safely handle None values
-                            summary = item.get('summary', '')
-                            if summary:  # Only process if summary exists
-                                summary = summary.replace('In This Article:', '').replace('\n', ' ').strip()
-                            else:
-                                summary = "No summary available."
-                            
-                            # Use the published time from the news item instead of current time
-                            published_time = item.get('published', datetime.now().strftime('%Y-%m-%d %H:%M'))
-                            
-                            st.markdown(f"""
-                            ### {title}
-                            <p style="color: #666; font-size: 0.8em;">{published_time}</p>
-                            
-                            {summary}
-                            
-                            <a href="{item.get('link', '#')}" target="_blank" style="color: #3b82f6; text-decoration: none;">Read Article</a>
-                            """, unsafe_allow_html=True)
+                        # Clean up the summary - safely handle None values
+                        summary = item.get('summary', '')
+                        if summary:  # Only process if summary exists
+                            summary = summary.replace('In This Article:', '').replace('\n', ' ').strip()
+                        else:
+                            summary = "No summary available."
                         
-                        if item.get('image'):
-                            with col2:
-                                st.image(item['image'], use_container_width=True)
+                        # Use the published time from the news item instead of current time
+                        published_time = item.get('published', datetime.now().strftime('%Y-%m-%d %H:%M'))
                         
-                        st.markdown("<hr style='margin: 2rem 0; opacity: 0.2;'>", unsafe_allow_html=True)
-            else:
-                st.info(f"No recent news available for {symbol}")
+                        st.markdown(f"""
+                        ### {title}
+                        <p style="color: #666; font-size: 0.8em;">{published_time}</p>
+                        
+                        {summary}
+                        
+                        <a href="{item.get('link', '#')}" target="_blank" style="color: #3b82f6; text-decoration: none;">Read Article</a>
+                        """, unsafe_allow_html=True)
+                    
+                    if item.get('image'):
+                        with col2:
+                            st.image(item['image'], use_container_width=True)
+                    
+                    st.markdown("<hr style='margin: 2rem 0; opacity: 0.2;'>", unsafe_allow_html=True)
+        else:
+            st.info(f"No recent news available for {symbol}")

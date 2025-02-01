@@ -73,17 +73,14 @@ def portfolio_page():
             options=list(time_periods.keys()),
             index=4  # Default to 1 Year
         )
-    
-    # Create placeholders for content
+
     chart_placeholder = st.empty()
     
-    # Show loading message while fetching data
-    with st.spinner('Loading portfolio data...'):
-        hist_portfolio = fetch_portfolio_history(
-            db, 
-            st.session_state.user['id'], 
-            time_periods[selected_period]
-        )
+    hist_portfolio = fetch_portfolio_history(
+        db, 
+        st.session_state.user['id'], 
+        time_periods[selected_period]
+    )
     
     if not hist_portfolio.empty:
         with chart_placeholder:
