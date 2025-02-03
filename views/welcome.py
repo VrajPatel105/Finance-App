@@ -42,7 +42,6 @@ def create_stat_card(label, value, change):
 
 def welcome_page():
     # Base styles
-    st.snow() # inbuild snow function just for funn.
     st.markdown("""
         <style>
         .stApp {
