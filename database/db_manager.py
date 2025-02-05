@@ -9,6 +9,7 @@ class Database:
         self.conn = sqlite3.connect('trading_app.db', check_same_thread=False)  # on calling self.conn, it will connect to the trading_app.db database. and if it dosent exist's it will create a new one 
         self.create_tables()  # calling the function
 
+
     def create_tables(self):
         # Users table
         self.conn.execute('''
@@ -209,9 +210,18 @@ class Database:
         existing = cursor.fetchone()
 
         if is_buy:
+            # Here we have to update the average price.
+            # Average price -> 100 coin at 1 dollar,  100 coin at 5 dollar. then the average would be -> 3 dollar 200 coin. as 100 + 500.
+
+            # Here's the example for the average price that was implemented in the stock average price.
+            # new_shares = existing[0] + shares  # Total new share count
+            # old_total_value = existing[0] * existing[1]  # Old shares * Old avg price
+            # new_purchase_value = shares * price  # New shares * New price
+            # new_avg_price = (old_total_value + new_purchase_value) / new_shares
             if existing:
+
                 new_amount = existing[0] + crypto_amount
-                new_avg_price = ((existing[1] * existing[0]) + (current_price * crypto_amount)) / new_amount
+                new_avg_price = ((existing[1] + existing[0]) + (current_price * crypto_amount)) / new_amount # The mistake was that I was multiplying the existing[0] * existing[1]. But it should be addition and not product 
                 
                 self.conn.execute(
                     'UPDATE crypto_portfolio SET crypto_amount=?, avg_price=? WHERE user_id = ? AND symbol = ?',

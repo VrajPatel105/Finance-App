@@ -218,8 +218,7 @@ def trading_page():
                             width=300,
                             key="lottie"
                         )
-                        time.sleep(1) 
-
+                        time.sleep(1)
                 #Forms for trading -> buy and sell
                 col1, col2 = st.columns(2)
 
@@ -243,7 +242,6 @@ def trading_page():
                                 if db.update_portfolio(st.session_state.user['id'], symbol, shares_to_buy, current_price, True):
                                     st.success(f'Successfully bought {shares_to_buy} shares of {symbol}')
                                     load_transaction_complete_lottie()
-
                                     st.session_state.user['balance'] -= total_share_cost  # substracting the amount from the user's total balance
                                     st.rerun()
                                 else:
