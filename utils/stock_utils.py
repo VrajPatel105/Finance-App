@@ -1,19 +1,79 @@
-import plotly.graph_objects as go
+import streamlit as st
+import yfinance as yf
+import streamlit.components.v1 as components
 
-# Function for creating a candelstick chart
-def create_stock_chart(data, symbol):
-    fig = go.Figure(data=[go.Candlestick(x=data.index,
-                open=data['Open'],
-                high=data['High'],
-                low=data['Low'],
-                close=data['Close'])])  # Here the open, high, low and close are inbuild functiosn offered by plotly. 
+def create_stock_chart(symbol):
 
-    # To update the layout
-    fig.update_layout(
-        title=f'{symbol} Stock Price',
-        yaxis_title='Price',
-        template='plotly_dark',
-        xaxis_rangeslider_visible=False
-    )
-    # this will return the plotted figure
-    return fig
+        tradingview_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+            </head>
+            <body>
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_chart"></div>
+                    <script type="text/javascript">
+                    new TradingView.widget(
+                    {{
+                        "width": "100%",
+                        "height": 600,
+                        "symbol": "NASDAQ:{symbol}",
+                        "interval": "M",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "toolbar_bg": "#131722",
+                        "enable_publishing": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_chart"
+                    }});
+                    </script>
+                </div>
+            </body>
+            </html>
+        """
+
+        # Display TradingView chart in Streamlit
+        components.html(tradingview_html, height=650)
+
+
+# chart for crypto..
+
+def create_crypto_chart(symbol):
+
+    # TradingView Chart Embedded using st.components.html()
+    tradingview_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        </head>
+        <body>
+            <div class="tradingview-widget-container">
+                <div id="tradingview_chart"></div>
+                <script type="text/javascript">
+                new TradingView.widget(
+                {{
+                    "width": "100%",
+                    "height": 600,
+                    "symbol": "BINANCE:{symbol}USDT",
+                    "interval": "M",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "toolbar_bg": "#131722",
+                    "enable_publishing": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tradingview_chart"
+                }});
+                </script>
+            </div>
+        </body>
+        </html>
+    """
+
+    # Display TradingView chart in Streamlit
+    components.html(tradingview_html, height=650)

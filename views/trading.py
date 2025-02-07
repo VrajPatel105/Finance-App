@@ -178,8 +178,8 @@ def trading_page():
                         value=format_number(hist_data['Volume'].iloc[-1])
                     )
 
-                # Display chart
-                st.plotly_chart(create_stock_chart(hist_data, symbol))
+                # Display chart via trading view. simply rendering the tradingview tv
+                create_stock_chart(symbol)
             
                 def load_transaction_complete_lottie():
                     def load_lottieurl(url: str):

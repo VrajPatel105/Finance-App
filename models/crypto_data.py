@@ -5,6 +5,7 @@ from database.connection import get_database
 import streamlit as st
 import time
 from streamlit_lottie import st_lottie
+from utils.stock_utils import create_crypto_chart
 
 def load_crypto_details(user_input):
    
@@ -108,7 +109,9 @@ def load_crypto_details(user_input):
                     """, unsafe_allow_html=True)
 
 
-                    # Here add buy and sell button same as did in stocks.
+                # calling the chart function.
+                create_crypto_chart(user_input)
+
 
                     # Crypto buy / sell form
                 col1, col2 = st.columns(2)
