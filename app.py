@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-       page_title="Trading Platform",
+       page_title="Finch",
        page_icon='resources/finch.ico',
        layout="wide"
    )

@@ -1,6 +1,8 @@
 import streamlit as st
-import plotly.graph_objects as go
+import plost
 from models.stock import StockData
+import pandas as pd
+import numpy as np
 import requests
 from database.connection import get_database
 
@@ -83,55 +85,17 @@ def portfolio_page():
     )
     
     if not hist_portfolio.empty:
-        with chart_placeholder:
-            # Create interactive chart with multiple traces
-            fig = go.Figure()
-            
-            # Add invested amount line
-            fig.add_trace(go.Scatter(
-                x=hist_portfolio['timestamp'],
-                y=hist_portfolio['invested'],
-                mode='lines',
-                name='Invested Amount',
-                line=dict(color='rgb(49, 130, 189)', width=2)
-            ))
-            
-            # Add market value line
-            fig.add_trace(go.Scatter(
-                x=hist_portfolio['timestamp'],
-                y=hist_portfolio['market_value'],
-                mode='lines',
-                name='Market Value',
-                line=dict(color='rgb(204, 204, 204)', width=2)
-            ))
-            
-            # Add profit/loss area
-            fig.add_trace(go.Scatter(
-                x=hist_portfolio['timestamp'],
-                y=hist_portfolio['profit_loss'],
-                mode='lines',
-                name='Profit/Loss',
-                fill='tozeroy',
-                line=dict(color='rgb(50, 171, 96)', width=1)
-            ))
-            
-            fig.update_layout(
-                title=f'Portfolio Performance - {selected_period}',
-                xaxis_title='Date',
-                yaxis_title='Value ($)',
-                template='plotly_dark',
-                height=500,
-                showlegend=True,
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
+
+        st.title("Portfolio Performance")
+
+
+        plost.line_chart(
+        data=hist_portfolio.rename(columns={'timestamp': 'Date', 'market_value': 'Portfolio Value ($)'}),
+        x='Date',
+        y='Portfolio Value ($)',
+        height=400,
+        color='#1E88E5'
                 )
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
         
         # Add summary metrics
         latest = hist_portfolio.iloc[-1]
