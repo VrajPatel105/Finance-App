@@ -19,18 +19,27 @@ def fetch_stock_data(symbol):
 def create_stock_cards():
    # Popular stock tickers with their names
    popular_stocks = {
-       'AAPL': 'Apple',
-       'GOOGL': 'Google', 
-       'MSFT': 'Microsoft',
-       'AMZN': 'Amazon',
-       'META': 'Meta',
-       'TSLA': 'Tesla',
-       'NVDA': 'NVIDIA',
-       'AMD': 'AMD',
-       'NFLX': 'Netflix',
-       'DIS': 'Disney'
-   }
-   
+    'AAPL': 'Apple',
+    'DOW': 'Dow Jones',
+    'GOOGL': 'Google',
+    'MSFT': 'Microsoft',
+    'AMZN': 'Amazon',
+    'META': 'Meta',
+    'TSLA': 'Tesla',
+    'NVDA': 'NVIDIA',
+    'AMD': 'AMD',
+    'NFLX': 'Netflix',
+    'DIS': 'Disney',
+    'RGTI': 'Rigetti',
+    'INTC': 'Intel',
+    'ADBE': 'Adobe',
+    'CRM': 'Salesforce',
+    'PYPL': 'PayPal',
+    'UBER': 'Uber',
+    'PLTR': 'Palantir',
+    'SHOP': 'Shopify',    
+}
+
    # Start grid container
    html_content = """
    <div class="stock-grid-container">
@@ -59,9 +68,6 @@ def create_stock_cards():
                        </div>
                        <div class="stock-price-container">
                            <div class="stock-price">${price:,.2f}</div>
-                           <div class="price-change {'positive' if change >= 0 else 'negative'}">
-                               {change:+.2f}%
-                           </div>
                        </div>
                    </div>
                    
@@ -181,7 +187,7 @@ def create_stock_cards():
        .stock-price {
            font-size: 1.4rem;
            font-weight: 700;
-           font-family: Georgia, serif;
+           font-family: "Gill Sans", sans-serif;
            color: #E2E8F0;
            margin: 0.5rem 0;
            white-space: nowrap;
@@ -287,15 +293,6 @@ def create_stock_cards():
            border-color: rgba(251, 113, 133, 0.5);
        }
        
-       .price-change {
-           padding: 0.3rem 1rem;
-           border-radius: 20px;
-           font-size: 0.9rem;
-           font-weight: 600;
-           display: inline-block;
-           white-space: nowrap;
-           margin-top: 0.5rem;
-       }
        
        .positive {
            color: #4ADE80;
@@ -308,13 +305,17 @@ def create_stock_cards():
            background: rgba(251, 113, 133, 0.1);
            border: 1px solid rgba(251, 113, 133, 0.2);
        }
+
+       body::-webkit-scrollbar {
+            display: none;
+        }
    </style>
    """
    
    # Combine styles and content
    full_html = f"{styles}{html_content}"
    
-   st.components.v1.html(full_html, height=800, scrolling=True)
+   st.components.v1.html(full_html, height=1200, scrolling=True)
     # Function for loading the trading page
 def trading_page():
     st.title('Trading Dashboard')
