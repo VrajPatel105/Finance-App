@@ -7,6 +7,8 @@ from datetime import datetime
 from streamlit_lottie import st_lottie
 import requests
 import time
+import yfinance as yf
+from streamlit.components.v1 import html
 
 
 @st.cache_data(ttl="5m")
@@ -15,129 +17,304 @@ def fetch_stock_data(symbol):
     return StockData.get_stock_data(symbol)
 
 def create_stock_cards():
-    # Popular stock tickers with their names
-    popular_stocks = {
-        'AAPL': 'Apple',
-        'GOOGL': 'Google',
-        'MSFT': 'Microsoft',
-        'AMZN': 'Amazon',
-        'META': 'Meta',
-        'TSLA': 'Tesla',
-        'NVDA': 'NVIDIA',
-        'AMD': 'AMD',
-        'NFLX': 'Netflix',
-        'DIS': 'Disney'
-    }
-    
-    st.markdown("""
-    <style>
-        .stock-grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        .stock-card {
-            background: linear-gradient(145deg, #1a1f2c, #2a2f3c);
-            border: 1px solid #2d3748;
-            border-radius: 12px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 0;  /* Added to handle text overflow */
-            
-        }
-        .stock-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-color: #805ad5;
-        }
-        .stock-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        .stock-symbol {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #805ad5;
-            white-space: nowrap;
-        }
-        .stock-name {
-            color: #a0aec0;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .stock-price-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        .stock-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #e2e8f0;
-            margin-bottom: 0.3rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        .price-change {
-            padding: 0.2rem 0.8rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        .positive {
-            color: #48bb78;
-            background: rgba(72, 187, 120, 0.1);
-            border: 1px solid rgba(72, 187, 120, 0.2);
-        }
-        .negative {
-            color: #f56565;
-            background: rgba(245, 101, 101, 0.1);
-            border: 1px solid rgba(245, 101, 101, 0.2);
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<div class="stock-grid-container">', unsafe_allow_html=True)
-    
-    for symbol, name in popular_stocks.items():
-        hist_data, _ = fetch_stock_data(symbol)
-        
-        if hist_data is not None and not hist_data.empty:
-            current_price = hist_data['Close'].iloc[-1]
-            prev_price = hist_data['Close'].iloc[-2]
-            price_change = ((current_price - prev_price) / prev_price) * 100
-            is_positive = price_change >= 0
-            
-            st.markdown(f"""
-                <div class="stock-card" onclick="
-                    document.querySelector('input[aria-label*=\'Stock Symbol\']').value = '{symbol}';
-                    document.querySelector('input[aria-label*=\'Stock Symbol\']').dispatchEvent(new Event('input', {{ bubbles: true }}));
-                ">
-                    <div class="stock-header">
-                        <div class="stock-symbol">{symbol}</div>
-                    </div>
-                    <div class="stock-name">{name}</div>
-                    <div class="stock-price-container">
-                        <div class="stock-price">${current_price:.2f}</div>
-                        <div class="price-change {'positive' if is_positive else 'negative'}">
-                            {'+' if is_positive else ''}{price_change:.2f}%
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+   # Popular stock tickers with their names
+   popular_stocks = {
+       'AAPL': 'Apple',
+       'GOOGL': 'Google', 
+       'MSFT': 'Microsoft',
+       'AMZN': 'Amazon',
+       'META': 'Meta',
+       'TSLA': 'Tesla',
+       'NVDA': 'NVIDIA',
+       'AMD': 'AMD',
+       'NFLX': 'Netflix',
+       'DIS': 'Disney'
+   }
+   
+   # Start grid container
+   html_content = """
+   <div class="stock-grid-container">
+   """
+   
+   for symbol, name in popular_stocks.items():
+       try:
+           stock = yf.Ticker(symbol)
+           info = stock.info
+           price = info.get('currentPrice', 0)
+           change = info.get('regularMarketChangePercent', 0)
+           volume = info.get('volume', 0)
+           day_low = info.get('dayLow', 0)
+           day_high = info.get('dayHigh', 0)
+           pe_ratio = info.get('forwardPE', 'N/A')
+           
+           volume_str = f"${volume/1000000:.1f}M" if isinstance(volume, (int, float)) else "N/A"
+           pe_ratio_str = f"{pe_ratio:.2f}" if isinstance(pe_ratio, (int, float)) else "N/A"
+           
+           html_content += f"""
+               <div class="stock-card">
+                   <div class="stock-header">
+                       <div>
+                           <div class="stock-symbol">{symbol}</div>
+                           <div class="stock-name">{name}</div>
+                       </div>
+                       <div class="stock-price-container">
+                           <div class="stock-price">${price:,.2f}</div>
+                           <div class="price-change {'positive' if change >= 0 else 'negative'}">
+                               {change:+.2f}%
+                           </div>
+                       </div>
+                   </div>
+                   
+                   <div class="trading-stats">
+                       <div class="stat-item">
+                           <span class="stat-label">24h Vol</span>
+                           <span class="stat-value">{volume_str}</span>
+                       </div>
+                       <div class="stat-item">
+                           <span class="stat-label">P/E Ratio</span>
+                           <span class="stat-value">{pe_ratio_str}</span>
+                       </div>
+                   </div>
+                   
+                   <div class="market-trends">
+                       <div class="trend-item">
+                           <span class="trend-label">Day Range</span>
+                           <div class="trend-range">
+                               <span>${day_low:,.2f}</span>
+                               <span class="range-divider">-</span>
+                               <span>${day_high:,.2f}</span>
+                           </div>
+                       </div>
+                   </div>
+                   
+                   <div class="quick-actions">
+                       <button class="action-btn buy">Buy</button>
+                       <button class="action-btn sell">Sell</button>
+                   </div>
+               </div>
+           """
+           
+       except Exception as e:
+           st.error(f"Error fetching data for {symbol}: {str(e)}")
+   
+   html_content += "</div>"
+   
+   # CSS Styles
+   styles = """
+   <style>
+       .stock-grid-container {
+           display: grid;
+           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+           gap: 1.8rem;
+           padding: 1.5rem;
+           margin: 1.5rem;
+       }
+       
+       .stock-card {
+           background: #1F1F1F;
+           border: 1px solid rgba(168, 85, 247, 0.2);
+           border-radius: 12px;
+           padding: 1.2rem;
+           cursor: pointer;
+           transition: all 0.3s ease;
+           min-width: 0;
+           position: relative;
+           overflow: hidden;
+       }
+       
+       .stock-card::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.03), transparent);
+           transform: translateX(-100%);
+           transition: 0.5s;
+       }
+       
+       .stock-card:hover {
+           transform: translateY(-3px);
+           border-color: rgba(168, 85, 247, 0.4);
+           box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+       }
+       
+       .stock-card:hover::before {
+           transform: translateX(100%);
+       }
+       
+       .stock-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: flex-start;
+           margin-bottom: 0.8rem;
+           border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+           padding-bottom: 0.8rem;
+       }
+       
+       .stock-symbol {
+           font-size: 1.3rem;
+           font-family: Georgia, serif;
+           font-weight: 400;
+           background: linear-gradient(to right, #E2E8F0, #A855F7);
+           -webkit-background-clip: text;
+           -webkit-text-fill-color: transparent;
+           white-space: nowrap;
+       }
+       
+       .stock-name {
+           color: #94A3B8;
+           font-size: 0.9rem;
+           margin: 0.3rem 0;
+           white-space: nowrap;
+           overflow: hidden;
+           text-overflow: ellipsis;
+       }
+       
+       .stock-price-container {
+           display: flex;
+           flex-direction: column;
+           align-items: flex-end;
+       }
+       
+       .stock-price {
+           font-size: 1.4rem;
+           font-weight: 700;
+           font-family: Georgia, serif;
+           color: #E2E8F0;
+           margin: 0.5rem 0;
+           white-space: nowrap;
+           overflow: hidden;
+           text-overflow: ellipsis;
+           max-width: 100%;
+       }
+       
+       .trading-stats {
+           display: flex;
+           justify-content: space-between;
+           margin: 1rem 0;
+           padding: 0.8rem 0;
+           border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+       }
+       
+       .stat-item {
+           display: flex;
+           flex-direction: column;
+       }
+       
+       .stat-label {
+           font-size: 0.75rem;
+           color: #94A3B8;
+           margin-bottom: 0.2rem;
+       }
+       
+       .stat-value {
+           font-size: 0.9rem;
+           color: #E2E8F0;
+           font-weight: 400;
+       }
+       
+       .market-trends {
+           padding: 0.8rem 0;
+       }
+       
+       .trend-item {
+           margin-bottom: 0.5rem;
+       }
+       
+       .trend-label {
+           font-size: 0.75rem;
+           color: #94A3B8;
+           display: block;
+           margin-bottom: 0.3rem;
+       }
+       
+       .trend-range {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           font-size: 0.9rem;
+           color: #E2E8F0;
+       }
+       
+       .range-divider {
+           color: #94A3B8;
+           margin: 0 0.5rem;
+       }
+       
+       .quick-actions {
+           display: flex;
+           gap: 0.8rem;
+           margin-top: 1rem;
+       }
+       
+       .action-btn {
+           flex: 1;
+           padding: 0.5rem;
+           border-radius: 8px;
+           font-size: 0.9rem;
+           font-weight: 600;
+           cursor: pointer;
+           transition: all 0.2s ease;
+           background: transparent;
+           border: 1px solid rgba(168, 85, 247, 0.3);
+           color: #E2E8F0;
+       }
+       
+       .action-btn:hover {
+           background: rgba(168, 85, 247, 0.1);
+           border-color: rgba(168, 85, 247, 0.5);
+       }
+       
+       .action-btn.buy {
+           color: #4ADE80;
+           border-color: rgba(74, 222, 128, 0.3);
+       }
+       
+       .action-btn.buy:hover {
+           background: rgba(74, 222, 128, 0.1);
+           border-color: rgba(74, 222, 128, 0.5);
+       }
+       
+       .action-btn.sell {
+           color: #FB7185;
+           border-color: rgba(251, 113, 133, 0.3);
+       }
+       
+       .action-btn.sell:hover {
+           background: rgba(251, 113, 133, 0.1);
+           border-color: rgba(251, 113, 133, 0.5);
+       }
+       
+       .price-change {
+           padding: 0.3rem 1rem;
+           border-radius: 20px;
+           font-size: 0.9rem;
+           font-weight: 600;
+           display: inline-block;
+           white-space: nowrap;
+           margin-top: 0.5rem;
+       }
+       
+       .positive {
+           color: #4ADE80;
+           background: rgba(74, 222, 128, 0.1);
+           border: 1px solid rgba(74, 222, 128, 0.2);
+       }
+       
+       .negative {
+           color: #FB7185;
+           background: rgba(251, 113, 133, 0.1);
+           border: 1px solid rgba(251, 113, 133, 0.2);
+       }
+   </style>
+   """
+   
+   # Combine styles and content
+   full_html = f"{styles}{html_content}"
+   
+   st.components.v1.html(full_html, height=800, scrolling=True)
     # Function for loading the trading page
 def trading_page():
     st.title('Trading Dashboard')
