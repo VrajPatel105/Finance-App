@@ -10,333 +10,402 @@ import time
 import yfinance as yf
 from streamlit.components.v1 import html
 
-
 @st.cache_data(ttl="5m")
-def fetch_stock_data(symbol):
-    """Fetch stock data with caching"""
-    return StockData.get_stock_data(symbol)
+def fetch_multiple_stocks_data(symbols):
+    """
+    Fetch data for multiple stocks at once with caching
+    """
+    try:
+        # Download data for all symbols at once
+        tickers = yf.Tickers(" ".join(symbols))
+        stock_data = {}
+        
+        for symbol in symbols:
+            try:
+                info = tickers.tickers[symbol].info
+                stock_data[symbol] = {
+                    'currentPrice': info.get('currentPrice', 0),
+                    'volume': info.get('volume', 0),
+                    'dayLow': info.get('dayLow', 0),
+                    'dayHigh': info.get('dayHigh', 0),
+                    'forwardPE': info.get('forwardPE', 'N/A')
+                }
+            except Exception:
+                stock_data[symbol] = None
+                
+        return stock_data
+    except Exception as e:
+        st.error(f"Error fetching stock data: {str(e)}")
+        return {}
 
 def create_stock_cards():
-   # Popular stock tickers with their names
-   popular_stocks = {
-    'AAPL': 'Apple',
-    'DOW': 'Dow Jones',
-    'GOOGL': 'Google',
-    'MSFT': 'Microsoft',
-    'AMZN': 'Amazon',
-    'META': 'Meta',
-    'TSLA': 'Tesla',
-    'NVDA': 'NVIDIA',
-    'AMD': 'AMD',
-    'NFLX': 'Netflix',
-    'DIS': 'Disney',
-    'RGTI': 'Rigetti',
-    'INTC': 'Intel',
-    'ADBE': 'Adobe',
-    'CRM': 'Salesforce',
-    'PYPL': 'PayPal',
-    'UBER': 'Uber',
-    'PLTR': 'Palantir',
-    'SHOP': 'Shopify',    
-}
+    # Initialize session state for selected symbol if it doesn't exist
+    if 'selected_symbol' not in st.session_state:
+        st.session_state.selected_symbol = None
 
-   # Start grid container
-   html_content = """
-   <div class="stock-grid-container">
-   """
-   
-   for symbol, name in popular_stocks.items():
-       try:
-           stock = yf.Ticker(symbol)
-           info = stock.info
-           price = info.get('currentPrice', 0)
-           change = info.get('regularMarketChangePercent', 0)
-           volume = info.get('volume', 0)
-           day_low = info.get('dayLow', 0)
-           day_high = info.get('dayHigh', 0)
-           pe_ratio = info.get('forwardPE', 'N/A')
-           
-           volume_str = f"${volume/1000000:.1f}M" if isinstance(volume, (int, float)) else "N/A"
-           pe_ratio_str = f"{pe_ratio:.2f}" if isinstance(pe_ratio, (int, float)) else "N/A"
-           
-           html_content += f"""
-               <div class="stock-card">
-                   <div class="stock-header">
-                       <div>
-                           <div class="stock-symbol">{symbol}</div>
-                           <div class="stock-name">{name}</div>
-                       </div>
-                       <div class="stock-price-container">
-                           <div class="stock-price">${price:,.2f}</div>
-                       </div>
-                   </div>
-                   
-                   <div class="trading-stats">
-                       <div class="stat-item">
-                           <span class="stat-label">24h Vol</span>
-                           <span class="stat-value">{volume_str}</span>
-                       </div>
-                       <div class="stat-item">
-                           <span class="stat-label">P/E Ratio</span>
-                           <span class="stat-value">{pe_ratio_str}</span>
-                       </div>
-                   </div>
-                   
-                   <div class="market-trends">
-                       <div class="trend-item">
-                           <span class="trend-label">Day Range</span>
-                           <div class="trend-range">
-                               <span>${day_low:,.2f}</span>
-                               <span class="range-divider">-</span>
-                               <span>${day_high:,.2f}</span>
-                           </div>
-                       </div>
-                   </div>
-                   
-                   <div class="quick-actions">
-                       <button class="action-btn buy">Buy</button>
-                       <button class="action-btn sell">Sell</button>
-                   </div>
-               </div>
-           """
-           
-       except Exception as e:
-           st.error(f"Error fetching data for {symbol}: {str(e)}")
-   
-   html_content += "</div>"
-   
-   # CSS Styles
-   styles = """
-   <style>
-       .stock-grid-container {
-           display: grid;
-           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-           gap: 1.8rem;
-           padding: 1.5rem;
-           margin: 1.5rem;
-       }
-       
-       .stock-card {
-           background: #1F1F1F;
-           border: 1px solid rgba(168, 85, 247, 0.2);
-           border-radius: 12px;
-           padding: 1.2rem;
-           cursor: pointer;
-           transition: all 0.3s ease;
-           min-width: 0;
-           position: relative;
-           overflow: hidden;
-       }
-       
-       .stock-card::before {
-           content: '';
-           position: absolute;
-           top: 0;
-           left: 0;
-           width: 100%;
-           height: 100%;
-           background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.03), transparent);
-           transform: translateX(-100%);
-           transition: 0.5s;
-       }
-       
-       .stock-card:hover {
-           transform: translateY(-3px);
-           border-color: rgba(168, 85, 247, 0.4);
-           box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
-       }
-       
-       .stock-card:hover::before {
-           transform: translateX(100%);
-       }
-       
-       .stock-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: flex-start;
-           margin-bottom: 0.8rem;
-           border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-           padding-bottom: 0.8rem;
-       }
-       
-       .stock-symbol {
-           font-size: 1.3rem;
-           font-family: Georgia, serif;
-           font-weight: 400;
-           background: linear-gradient(to right, #E2E8F0, #A855F7);
-           -webkit-background-clip: text;
-           -webkit-text-fill-color: transparent;
-           white-space: nowrap;
-       }
-       
-       .stock-name {
-           color: #94A3B8;
-           font-size: 0.9rem;
-           margin: 0.3rem 0;
-           white-space: nowrap;
-           overflow: hidden;
-           text-overflow: ellipsis;
-       }
-       
-       .stock-price-container {
-           display: flex;
-           flex-direction: column;
-           align-items: flex-end;
-       }
-       
-       .stock-price {
-           font-size: 1.4rem;
-           font-weight: 700;
-           font-family: "Gill Sans", sans-serif;
-           color: #E2E8F0;
-           margin: 0.5rem 0;
-           white-space: nowrap;
-           overflow: hidden;
-           text-overflow: ellipsis;
-           max-width: 100%;
-       }
-       
-       .trading-stats {
-           display: flex;
-           justify-content: space-between;
-           margin: 1rem 0;
-           padding: 0.8rem 0;
-           border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-       }
-       
-       .stat-item {
-           display: flex;
-           flex-direction: column;
-       }
-       
-       .stat-label {
-           font-size: 0.75rem;
-           color: #94A3B8;
-           margin-bottom: 0.2rem;
-       }
-       
-       .stat-value {
-           font-size: 0.9rem;
-           color: #E2E8F0;
-           font-weight: 400;
-       }
-       
-       .market-trends {
-           padding: 0.8rem 0;
-       }
-       
-       .trend-item {
-           margin-bottom: 0.5rem;
-       }
-       
-       .trend-label {
-           font-size: 0.75rem;
-           color: #94A3B8;
-           display: block;
-           margin-bottom: 0.3rem;
-       }
-       
-       .trend-range {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           font-size: 0.9rem;
-           color: #E2E8F0;
-       }
-       
-       .range-divider {
-           color: #94A3B8;
-           margin: 0 0.5rem;
-       }
-       
-       .quick-actions {
-           display: flex;
-           gap: 0.8rem;
-           margin-top: 1rem;
-       }
-       
-       .action-btn {
-           flex: 1;
-           padding: 0.5rem;
-           border-radius: 8px;
-           font-size: 0.9rem;
-           font-weight: 600;
-           cursor: pointer;
-           transition: all 0.2s ease;
-           background: transparent;
-           border: 1px solid rgba(168, 85, 247, 0.3);
-           color: #E2E8F0;
-       }
-       
-       .action-btn:hover {
-           background: rgba(168, 85, 247, 0.1);
-           border-color: rgba(168, 85, 247, 0.5);
-       }
-       
-       .action-btn.buy {
-           color: #4ADE80;
-           border-color: rgba(74, 222, 128, 0.3);
-       }
-       
-       .action-btn.buy:hover {
-           background: rgba(74, 222, 128, 0.1);
-           border-color: rgba(74, 222, 128, 0.5);
-       }
-       
-       .action-btn.sell {
-           color: #FB7185;
-           border-color: rgba(251, 113, 133, 0.3);
-       }
-       
-       .action-btn.sell:hover {
-           background: rgba(251, 113, 133, 0.1);
-           border-color: rgba(251, 113, 133, 0.5);
-       }
-       
-       
-       .positive {
-           color: #4ADE80;
-           background: rgba(74, 222, 128, 0.1);
-           border: 1px solid rgba(74, 222, 128, 0.2);
-       }
-       
-       .negative {
-           color: #FB7185;
-           background: rgba(251, 113, 133, 0.1);
-           border: 1px solid rgba(251, 113, 133, 0.2);
-       }
+    # JavaScript for handling card clicks
+    js_code = """
+    <script>
+        function handleCardClick(symbol) {
+            // Find the input element
+            const input = window.parent.document.querySelector('.stTextInput input');
+            if (input) {
+                // Set the value
+                input.value = symbol;
+                
+                // Create and dispatch input event
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Focus the input
+                input.focus();
+                
+                // Find the form element that contains the input
+                const form = input.closest('form');
+                if (form) {
+                    // Create a submit event
+                    const submitEvent = new Event('submit', {
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    
+                    // Dispatch the submit event on the form
+                    form.dispatchEvent(submitEvent);
+                }
+                
+                // Create and dispatch an Enter keypress event
+                const keypressEvent = new KeyboardEvent('keypress', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    which: 13,
+                    bubbles: true,
+                    cancelable: true
+                });
+                input.dispatchEvent(keypressEvent);
+                
+                // Also dispatch a change event
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // Force Streamlit to update by dispatching a custom event
+                window.parent.document.dispatchEvent(new CustomEvent('streamlit:render'));
+                
+                // Additional fallback - click any 'Run' button that might be present
+                setTimeout(() => {
+                    const runButton = window.parent.document.querySelector('button[kind="primaryFormSubmit"]');
+                    if (runButton) {
+                        runButton.click();
+                    }
+                }, 100);
+            }
+        }
+    </script>
+    """
 
-       body::-webkit-scrollbar {
+    # Popular stock tickers with their names
+    popular_stocks = {
+        'AAPL': 'Apple',
+        'DOW': 'Dow Jones',
+        'GOOGL': 'Google',
+        'MSFT': 'Microsoft',
+        'AMZN': 'Amazon',
+        'META': 'Meta',
+        'TSLA': 'Tesla',
+        'NVDA': 'NVIDIA',
+        'AMD': 'AMD',
+        'NFLX': 'Netflix',
+        'PLTR': 'Palantir',   
+    }
+
+    # Fetch all stock data at once
+    stock_data = fetch_multiple_stocks_data(list(popular_stocks.keys()))
+
+    # Start grid container
+    html_content = """
+    <div class="stock-grid-container">
+    """
+    
+    for symbol, name in popular_stocks.items():
+        try:
+            data = stock_data.get(symbol, {})
+            if data:
+                price = data.get('currentPrice', 0)
+                volume = data.get('volume', 0)
+                day_low = data.get('dayLow', 0)
+                day_high = data.get('dayHigh', 0)
+                pe_ratio = data.get('forwardPE', 'N/A')
+                
+                volume_str = f"${volume/1000000:.1f}M" if isinstance(volume, (int, float)) else "N/A"
+                pe_ratio_str = f"{pe_ratio:.2f}" if isinstance(pe_ratio, (int, float)) else "N/A"
+                
+                html_content += f"""
+                    <div class="stock-card" onclick="handleCardClick('{symbol}')" data-symbol="{symbol}">
+                        <div class="stock-header">
+                            <div>
+                                <div class="stock-symbol">{symbol}</div>
+                                <div class="stock-name">{name}</div>
+                            </div>
+                            <div class="stock-price-container">
+                                <div class="stock-price">${price:,.2f}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="trading-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">24h Vol</span>
+                                <span class="stat-value">{volume_str}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">P/E Ratio</span>
+                                <span class="stat-value">{pe_ratio_str}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="market-trends">
+                            <div class="trend-item">
+                                <span class="trend-label">Day Range</span>
+                                <div class="trend-range">
+                                    <span>${day_low:,.2f}</span>
+                                    <span class="range-divider">-</span>
+                                    <span>${day_high:,.2f}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <button class="action-btn buy" onclick="event.stopPropagation()">Buy</button>
+                            <button class="action-btn sell" onclick="event.stopPropagation()">Sell</button>
+                        </div>
+                    </div>
+                """
+                
+        except Exception as e:
+            st.error(f"Error processing data for {symbol}: {str(e)}")
+    
+    html_content += "</div>"
+    
+    # CSS Styles
+    styles = """
+    <style>
+        .stock-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.8rem;
+            padding: 1.5rem;
+            margin: 1.5rem;
+        }
+        
+        .stock-card {
+            background: #1F1F1F;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.03), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+        }
+        
+        .stock-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+            padding-bottom: 0.8rem;
+        }
+        
+        .stock-symbol {
+            font-size: 1.3rem;
+            font-family: Georgia, serif;
+            font-weight: 400;
+            background: linear-gradient(to right, #E2E8F0, #A855F7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+        
+        .stock-name {
+            color: #94A3B8;
+            font-size: 0.9rem;
+            margin: 0.3rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .stock-price-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .stock-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: "Gill Sans", sans-serif;
+            color: #E2E8F0;
+            margin: 0.5rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        
+        .trading-stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-bottom: 0.2rem;
+        }
+        
+        .stat-value {
+            font-size: 0.9rem;
+            color: #E2E8F0;
+            font-weight: 400;
+        }
+        
+        .market-trends {
+            padding: 0.8rem 0;
+        }
+        
+        .trend-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .trend-label {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .trend-range {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #E2E8F0;
+        }
+        
+        .range-divider {
+            color: #94A3B8;
+            margin: 0 0.5rem;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #E2E8F0;
+        }
+        
+        .action-btn:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+        
+        .action-btn.buy {
+            color: #4ADE80;
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+        
+        .action-btn.buy:hover {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: rgba(74, 222, 128, 0.5);
+        }
+        
+        .action-btn.sell {
+            color: #FB7185;
+            border-color: rgba(251, 113, 133, 0.3);
+        }
+        
+        .action-btn.sell:hover {
+            background: rgba(251, 113, 133, 0.1);
+            border-color: rgba(251, 113, 133, 0.5);
+        }
+        
+        body::-webkit-scrollbar {
             display: none;
         }
-   </style>
-   """
-   
-   # Combine styles and content
-   full_html = f"{styles}{html_content}"
-   
-   st.components.v1.html(full_html, height=1200, scrolling=True)
-    # Function for loading the trading page
+    </style>
+    """
+    
+    # Combine styles and content
+    full_html = f"{js_code}{styles}{html_content}"
+    
+    # Render the component
+    st.components.v1.html(
+        full_html,
+        height=1200,
+        scrolling=True
+    )
+
 def trading_page():
     st.title('Trading Dashboard')
+    
+    # Create the text input for the symbol
     symbol = st.text_input('Enter Stock Symbol (e.g., AAPL, GOOGL)', '').upper()
-    content_placeholder = st.empty()
-    # Stock symbol input
-
+    
+    # Show stock cards
     if not symbol:
         create_stock_cards()
     else:
-        content_placeholder.empty()
-        hist_data, stock_info = StockData.get_stock_data(symbol)  
+        # Get the stock data and display it
+        hist_data, stock_info = StockData.get_stock_data(symbol)
 
-        # Add error handling for empty data
         if hist_data is not None and not hist_data.empty and stock_info is not None:
             # Display stock info
             col1, col2, col3 = st.columns(3)
             try:
                 current_price = hist_data['Close'].iloc[-1]
                 
-                # Displaying the stock's values that were fetched from yfinance
                 with col1:
                     st.metric(
                         label="Current Price",
@@ -356,17 +425,16 @@ def trading_page():
                         value=format_number(hist_data['Volume'].iloc[-1])
                     )
 
-                # Display chart via trading view. simply rendering the tradingview tv
+                # Display chart
                 create_stock_chart(symbol)
             
                 def load_transaction_complete_lottie():
                     def load_lottieurl(url: str):
-                            r = requests.get(url)
-                            r.raise_for_status()
-                            return r.json()
+                        r = requests.get(url)
+                        r.raise_for_status()
+                        return r.json()
 
                     transaction_complete_lottie = "https://lottie.host/1c4c35ec-5ff0-4485-a777-8ed0f60b16e7/1mDPJ8vsSy.json"
-
                     
                     st.markdown('<div class="lottie-overlay"></div>', unsafe_allow_html=True)
                     lottie_json = load_lottieurl(transaction_complete_lottie)
@@ -375,7 +443,7 @@ def trading_page():
                     <style>
                     .lottie-overlay {
                         position: fixed;
-                        top:: 0;
+                        top: 0;
                         left: 0;
                         width: 100vw;
                         height: 100vh;
