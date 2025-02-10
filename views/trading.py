@@ -187,7 +187,7 @@ def trading_page():
                             r.raise_for_status()
                             return r.json()
 
-                    transaction_complete_lottie = "https://lottie.host/2b78dd02-e9a2-4f8a-81a7-7fa44e1f4b7e/9fHByB2zdS.json"
+                    transaction_complete_lottie = "https://lottie.host/1c4c35ec-5ff0-4485-a777-8ed0f60b16e7/1mDPJ8vsSy.json"
 
                     
                     st.markdown('<div class="lottie-overlay"></div>', unsafe_allow_html=True)
@@ -213,12 +213,12 @@ def trading_page():
                         st_lottie(
                             lottie_json,
                             speed=1,
-                            loop=True,
+                            loop=False,
                             height=300,
                             width=300,
                             key="lottie"
                         )
-                        time.sleep(1)
+                        time.sleep(2)
                 #Forms for trading -> buy and sell
                 col1, col2 = st.columns(2)
 

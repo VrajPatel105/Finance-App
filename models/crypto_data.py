@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from database.connection import get_database
 import streamlit as st
+from streamlit.components.v1 import html
 import time
 from streamlit_lottie import st_lottie
 from utils.stock_utils import create_crypto_chart
@@ -18,7 +19,7 @@ def load_crypto_details(user_input):
                     r.raise_for_status()
                     return r.json()
 
-            transaction_complete_lottie = "https://lottie.host/2b78dd02-e9a2-4f8a-81a7-7fa44e1f4b7e/9fHByB2zdS.json"
+            transaction_complete_lottie = "https://lottie.host/1c4c35ec-5ff0-4485-a777-8ed0f60b16e7/1mDPJ8vsSy.json"
 
             
             st.markdown('<div class="lottie-overlay"></div>', unsafe_allow_html=True)
@@ -68,7 +69,7 @@ def load_crypto_details(user_input):
        </style>
    """, unsafe_allow_html=True)
 
-    st.title(f"{user_input}")
+    st.subheader(f"{user_input}")
     
     if user_input:
         headers = {
@@ -94,21 +95,61 @@ def load_crypto_details(user_input):
                     try:
                         img_response = requests.get(f"https://api.coingecko.com/api/v3/coins/{coin_data['slug']}")
                         img_data = img_response.json()
-                        st.image(img_data['image']['large'], width=250)
+                        st.image(img_data['image']['large'], width=150)
                     except:
                         st.warning("Unable to load coin image")
 
                 with col2:
                     change_24h = price_data['percent_change_24h']
-                    st.markdown(f"""
-                        <div class="crypto-card">
-                            <h2 style='font-size:2rem; margin-bottom:1rem'>{coin_data['name']} ({coin_data['symbol']})</h2>
-                            <h3 style='font-size:1.8rem; margin-bottom:0.5rem'>${price_data['price']:,.2f} USD</h3>
-                            <p style='font-size:1.2rem; color: {"#4ADE80" if change_24h > 0 else "#F87171"}'>{change_24h:+.2f}% (24h)</p>
+                    st.components.v1.html(f"""
+                        <div style='
+                            background: #1F1F1F;
+                            border: 1px solid rgba(168, 85, 247, 0.2);
+                            border-radius: 10px;
+                            padding: 0.8rem;
+                            box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+                        '>
+                            <h2 style='
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                margin-bottom: 0.8rem;
+                                background: linear-gradient(to right, #E2E8F0, #A855F7);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                            '>{coin_data['name']} 
+                                <span style='
+                                    font-size: 1rem;
+                                    color: #A855F7;
+                                    background: none;
+                                    -webkit-text-fill-color: #A855F7;
+                                '>({coin_data['symbol']})</span>
+                            </h2>
+                            
+                            <h3 style='
+                                font-size: 1.8rem;
+                                font-weight: 800;
+                                margin-bottom: 0.8rem;
+                                color: #E2E8F0;
+                            '>${price_data['price']:,.2f} 
+                                <span style='
+                                    font-size: 0.9rem;
+                                    color: #94A3B8;
+                                '>USD</span>
+                            </h3>
+                            
+                            <p style='
+                                font-size: 1rem;
+                                font-weight: 500;
+                                color: {"#4ADE80" if change_24h > 0 else "#FB7185"};
+                                margin: 0;
+                            '>{change_24h:+.2f}% 
+                                <span style='
+                                    font-size: 0.8rem;
+                                    color: #94A3B8;
+                                '>(24h)</span>
+                            </p>
                         </div>
-                    """, unsafe_allow_html=True)
-
-
+                    """, height=180)
                 # calling the chart function.
                 create_crypto_chart(user_input)
 
