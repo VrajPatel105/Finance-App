@@ -5,6 +5,106 @@ st.set_page_config(
        page_icon='resources/finch.ico',
        layout="wide"
    )
+
+st.markdown("""
+   <style>
+       .stApp {
+           background: rgb(0, 0, 0);
+           color: #E2E8F0;
+       }
+       
+       /* Username card */
+       .user-name {
+           background: #1F1F1F;
+           border: 1px solid #A855F7;
+           border-radius: 12px;
+           padding: 12px 20px;
+           color: #E2E8F0;
+           font-weight: 600;
+           letter-spacing: 0.5px;
+           box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+       }
+       
+       /* Balance card */
+       .custom-metric {
+           background: #1F1F1F;
+           border: 2px solid #A855F7;
+           box-shadow: 0 0 20px #A855F7;
+           border-radius: 16px;
+           padding: 25px;
+           margin: 20px 0;
+       }
+       
+       .metric-label {
+           color: #A855F7;
+           font-size: 0.9rem;
+           text-transform: uppercase;
+           letter-spacing: 2px;
+           margin-bottom: 15px;
+       }
+       
+       .metric-value {
+           font-size: 2.5rem;
+           font-weight: 800;
+           background: linear-gradient(to right, #E2E8F0, #A855F7);
+           -webkit-background-clip: text;
+           -webkit-text-fill-color: transparent;
+           margin: 10px 0;
+       }
+       
+       .metric-delta {
+           background: rgba(168, 85, 247, 0.1);
+           border: 1px solid rgba(168, 85, 247, 0.3);
+           border-radius: 20px;
+           padding: 5px 15px;
+           font-size: 0.9rem;
+           color: #E2E8F0;
+       }
+       
+       /* Navigation buttons */
+       .stButton > button {
+           background: #1F1F1F;
+           border: 1px solid #A855F7;
+           border-radius: 12px;
+           color: #E2E8F0;
+           padding: 12px 24px;
+           font-size: 1rem;
+           font-weight: 500;
+           letter-spacing: 0.5px;
+           transition: all 0.2s;
+           text-align: left;
+           width: 100%;
+           display: flex;
+           align-items: center;
+           margin-bottom: 12px;
+           position: relative;
+           overflow: hidden;
+       }
+       
+       .stButton > button::after {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+           transform: translateX(-100%);
+           transition: 0.5s;
+       }
+       
+       .stButton > button:hover {
+           box-shadow: 0 0 15px #A855F7;
+           background: #2D2D2D;
+       }
+       
+       .stButton > button:hover::after {
+           transform: translateX(100%);
+       }
+   </style>
+""", unsafe_allow_html=True)
+
+
 from database.connection import get_database
 from views.auth import register_page, login_page, logout
 from views.welcome import welcome_page
@@ -16,73 +116,20 @@ from views.news import load_news
 
 # Function to load a side bar containing a portfolio, trade and logout button
 
-
 def load_user_info():
-
-    st.markdown(f"""
-    <div style="
-        font-size: 0.9rem;
-        color: #4a5568;
-        font-weight: 500;
-        margin-bottom: 8px;
-        padding: 10px 18px;
-        background-color: #e2e8f0;
-        border-radius: 20px;
-        display: inline-block;
-    ">
-         {st.session_state.user['name']}!
-    </div>
-""", unsafe_allow_html=True)
-
-
-    st.markdown("""
-    <style>
-    .custom-metric {
-        background: linear-gradient(to right, #15326d, #1e4fd8);
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(30, 79, 216, 0.1);
-        text-align: center;
-    }
-    .custom-metric .metric-label {
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin-bottom: 12px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .custom-metric .metric-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 16px 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-    .custom-metric .metric-delta {
-        font-size: 1rem;
-        margin-top: 12px;
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 20px;
-        background-color: rgba(255,255,255,0.1);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    balance = st.session_state.user['balance']
-    delta = balance - 100000
-
-    st.markdown(f"""
-        <div class="custom-metric">
-            <div class="metric-label">Available Balance</div>
-            <div class="metric-value">${balance:,.2f}</div>
-            <div class="metric-delta">{'↑' if delta >= 0 else '↓'} ${abs(delta):,.2f}</div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Add spacer
-    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
-
+   balance = st.session_state.user['balance']
+   delta = balance - 100000 
+   
+   st.markdown(f"""
+   <div style="text-align: center;">
+       <div style="font-size: 3rem; font-weight: 800; background: linear-gradient(to right, #E2E8F0, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;">
+           ${balance:,.2f}
+       </div>
+       <div style="font-size: 0.9rem; color: #E2E8F0; margin-top: -5px;">
+           {'↑' if delta >= 0 else '↓'} ${abs(delta):,.2f}
+       </div>
+   </div>
+   """, unsafe_allow_html=True)
 
 
 def create_sidebar():

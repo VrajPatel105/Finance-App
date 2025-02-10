@@ -44,46 +44,75 @@ Question: {prompt}"""
         st.markdown("""
             <style>
             .stApp {
-                background-color: #1E1E1E;
-                color: #FFFFFF;
+                background-color: #000000;
+                color: #E2E8F0;
             }
             
             .stTitle {
-                font-size: 2rem !important;
-                font-weight: 500 !important;
-                padding-bottom: 20px !important;
-                color: #FFFFFF !important;
+                font-size: 2.2rem !important;
+                font-weight: 600 !important;
+                background: linear-gradient(to right, #E2E8F0, #A855F7);
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                margin-bottom: 30px !important;
             }
             
-            .block-container {
-                background-color: transparent !important;
+            /* Chat Messages */
+            .stChatMessage {
+                background: #1F1F1F !important;
+                border: 1px solid rgba(168, 85, 247, 0.2) !important;
+                border-radius: 12px !important;
+                padding: 20px !important;
+                margin: 15px 0 !important;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
             }
             
+            .stChatMessage:hover {
+                border-color: rgba(168, 85, 247, 0.4) !important;
+                box-shadow: 0 0 15px rgba(168, 85, 247, 0.1) !important;
+            }
+            
+            /* Input Fields */
+            [data-testid="stChatInput"] {
+                border: 1px solid rgba(168, 85, 247, 0.3) !important;
+                background-color: #1F1F1F !important;
+                border-radius: 10px !important;
+                color: #E2E8F0 !important;
+                padding: 12px !important;
+            }
+            
+            [data-testid="stChatInput"]:focus {
+                border-color: #A855F7 !important;
+                box-shadow: 0 0 10px rgba(168, 85, 247, 0.2) !important;
+            }
+            
+            .stTextInput input {
+                background-color: #1F1F1F !important;
+                border: 1px solid rgba(168, 85, 247, 0.3) !important;
+                color: #E2E8F0 !important;
+                border-radius: 8px !important;
+                padding: 8px 12px !important;
+            }
+            
+            .stTextInput input:focus {
+                border-color: #A855F7 !important;
+                box-shadow: 0 0 10px rgba(168, 85, 247, 0.2) !important;
+            }
+            
+            /* Hide Toolbar */
             div[data-testid="stToolbar"] {
                 display: none;
             }
             
+            /* Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
             .stChatMessage {
-                background-color: #2D2D2D !important;
-                border-radius: 15px !important;
-                padding: 15px !important;
-                border: 1px solid #3D3D3D !important;
-                margin: 10px 0 !important;
+                animation: fadeIn 0.3s ease-out;
             }
-            
-            [data-testid="stChatInput"] {
-                border-color: #4D4D4D !important;
-                background-color: #2D2D2D !important;
-                color: #FFFFFF !important;
-                border-radius: 10px !important;
-            }
-            
-            .stTextInput input {
-                background-color: #2D2D2D !important;
-                border: 1px solid #3D3D3D !important;
-                color: #FFFFFF !important;
-            }
-            
             </style>
         """, unsafe_allow_html=True)
 
@@ -121,7 +150,7 @@ Remember to enter a stock symbol in the input field above to get specific analys
         with col2:
             st.title("Finch Assistant")
                     
-        # Firstly we have to applyt the styling                    
+        # Firstly we have to apply the styling                    
         self.apply_styling()
         
         # checking the messages in the session state

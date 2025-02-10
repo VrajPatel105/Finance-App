@@ -7,9 +7,6 @@ from models.crypto_data import load_crypto_details
 # api_key = '67a74d22-475c-4e1b-9f01-1803a25181f4'
 # api_secret = 'MHcCAQEEILp9o7wput6Lplmf+r1OBsCnZ+Zu9I32XAaZdQ+DUmI7oAoGCCqGSM49AwEHoUQDQgAEHJJJJdP8l+sv/rQlsvUf1h09pVpb+xCtuTwLfzuTwsxCFo+6FSknfwpuC0/Scp4se+SZwtXtXC+bWENKihthpA'
 
-import streamlit as st
-import requests
-
 def load_crypto():
     st.title('Cryptocurrencies')
     user_input = st.text_input('Search a crypto-currency', '').upper()
