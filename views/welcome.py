@@ -3,48 +3,52 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import numpy as np
 from streamlit.components.v1 import html
+import pandas as pd
 
 def create_feature_card(icon, title, description):
-    return f'''
-        <div class="feature-card" style="
-            background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
-            border-radius: 20px;
-            padding: 1.8rem;
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        " onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 8px 30px rgba(147, 51, 234, 0.2)'"
-           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(147, 51, 234, 0.1)'">
-            <div class="icon-pulse" style="
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-                animation: pulse 2s infinite;
-            ">{icon}</div>
-            <h3 style="
-                color: #a855f7;
-                font-size: 1.4rem;
-                margin-bottom: 0.8rem;
-                font-weight: 600;
-                background: linear-gradient(90deg, #a855f7, #d946ef);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            ">
-                {title}
-            </h3>
-            <p style="
-                color: #94a3b8;
-                line-height: 1.6;
-                font-size: 1rem;
-            ">
-                {description}
-            </p>
-            <div class="card-glow"></div>
-        </div>
-    '''
+   return f'''
+       <div class="feature-card" style="
+           background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
+           border-radius: 20px;
+           padding: 1.5rem;
+           border: 1px solid rgba(147, 51, 234, 0.2);
+           margin-bottom: 0.9rem;  /* Increased to 1.2rem (~12px) to force spacing */
+           display: block;  /* Ensures block-level behavior */
+           box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           position: relative;
+           overflow: hidden;
+           backdrop-filter: blur(10px);
+       " onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 8px 30px rgba(147, 51, 234, 0.2)'"
+          onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(147, 51, 234, 0.1)'">
+           <div class="icon-pulse" style="
+               font-size: 2.5rem;
+               margin-bottom: 0.8rem;
+               animation: pulse 2s infinite;
+           ">{icon}</div>
+           <h3 style="
+               color: #a855f7;
+               font-size: 1.4rem;
+               margin-bottom: 0.7rem;
+               font-weight: 600;
+               background: linear-gradient(90deg, #a855f7, #d946ef);
+               -webkit-background-clip: text;
+               -webkit-text-fill-color: transparent;
+           ">
+               {title}
+           </h3>
+           <p style="
+               color: #94a3b8;
+               line-height: 1.6;
+               font-size: 1.1rem;
+           ">
+               {description}
+           </p>
+           <div class="card-glow"></div>
+       </div>
+   '''
+
+
 
 def create_stat_card(label, value, change):
     return f'''
@@ -265,6 +269,7 @@ def welcome_page():
             st.session_state.current_page = 'register'
             st.rerun()
 
+
     # Main Content Layout
     col1, col2 = st.columns([5, 7])
 
@@ -299,75 +304,138 @@ def welcome_page():
             unsafe_allow_html=True
         )
 
+
     with col2:
-        # Chart Data
-        dates = [(datetime.now() - timedelta(days=x)).strftime('%Y-%m-%d') for x in range(30, 0, -1)]
-        base_price = 100
-        prices = [base_price + np.random.normal(0, 2) + (i/8) for i in range(30)]
-        
-        fig = go.Figure()
-        
-        # Candlestick chart
-        fig.add_trace(go.Candlestick(
-            x=dates,
-            open=[p * (1 - np.random.uniform(0, 0.02)) for p in prices],
-            high=[p * (1 + np.random.uniform(0, 0.03)) for p in prices],
-            low=[p * (1 - np.random.uniform(0, 0.03)) for p in prices],
-            close=prices,
-            increasing_line_color='#22c55e',
-            decreasing_line_color='#ef4444',
-            name='Price'
-        ))
+        st.components.v1.html(
+            """
+            <div style="
+                display: flex;
+                flex-direction: column;
+                height: 650px;
+            ">
+                <!-- Top Card -->
+                <div style="
+                    background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
+                    border-radius: 24px;
+                    padding: 2.5rem;
+                    border: 1px solid rgba(147, 51, 234, 0.2);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    margin-bottom: 1rem;
+                ">
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 2.5rem;
+                    ">
+                        <div style="
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            color: #a855f7;
+                        ">Market Pulse</div>
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            color: #a855f7;
+                            font-size: 0.9rem;
+                        ">
+                            ✨ Live
+                        </div>
+                    </div>
 
-        # Moving averages
-        ma7 = np.convolve(prices, np.ones(7)/7, mode='valid')
-        ma21 = np.convolve(prices, np.ones(21)/21, mode='valid')
+                    <div style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 1.5rem;
+                        margin-bottom: 2.5rem;
+                    ">
+                        <div style="
+                            background: rgba(15, 15, 20, 0.6);
+                            padding: 2rem;
+                            border-radius: 16px;
+                        ">
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 1rem;
+                            ">
+                                <span style="color: #94a3b8;">BTC/USD</span>
+                                <span style="color: #22c55e;">↑ +2.4%</span>
+                            </div>
+                            <div style="
+                                font-size: 2rem;
+                                font-weight: 600;
+                                color: #ffffff;
+                                margin-bottom: 0.5rem;
+                            ">$48,532</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Updated just now</div>
+                        </div>
 
-        fig.add_trace(go.Scatter(
-            x=dates[6:],
-            y=ma7,
-            line=dict(color='#a855f7', width=1.5),
-            name='7-day MA'
-        ))
+                        <div style="
+                            background: rgba(15, 15, 20, 0.6);
+                            padding: 2rem;
+                            border-radius: 16px;
+                        ">
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 1rem;
+                            ">
+                                <span style="color: #94a3b8;">24h Volume</span>
+                                <span style="color: #a855f7;">$</span>
+                            </div>
+                            <div style="
+                                font-size: 2rem;
+                                font-weight: 600;
+                                color: #ffffff;
+                                margin-bottom: 0.5rem;
+                            ">$1.2B</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Across all pairs</div>
+                        </div>
+                    </div>
 
-        fig.add_trace(go.Scatter(
-            x=dates[20:],
-            y=ma21,
-            line=dict(color='#d946ef', width=1.5),
-            name='21-day MA'
-        ))
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 1rem;
+                    ">
+                        <div style="
+                            background: rgba(15, 15, 20, 0.6);
+                            padding: 1.75rem;
+                            border-radius: 16px;
+                            text-align: center;
+                        ">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">12.4K</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Active Traders</div>
+                        </div>
 
-        fig.update_layout(
-            title={
-                'text': "Live Market Analysis",
-                'y': 0.95,
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top',
-                'font': {'size': 24, 'color': '#f8fafc'}
-            },
-            template='plotly_dark',
-            height=500,
-            paper_bgcolor='rgba(23, 23, 30, 0.9)',
-            plot_bgcolor='rgba(23, 23, 30, 0.9)',
-            xaxis_rangeslider_visible=False,
-            margin=dict(l=20, r=20, t=60, b=20),
-            font={'color': '#f8fafc'},
-            xaxis_gridcolor='rgba(147, 51, 234, 0.1)',
-            yaxis_gridcolor='rgba(147, 51, 234, 0.1)',
-            showlegend=True,
-            legend=dict(
-                yanchor="top",
-                y=0.99,
-                xanchor="left",
-                x=0.01,
-                bgcolor='rgba(23, 23, 30, 0.9)',
-                bordercolor='rgba(147, 51, 234, 0.2)'
-            )
+                        <div style="
+                            background: rgba(15, 15, 20, 0.6);
+                            padding: 1.75rem;
+                            border-radius: 16px;
+                            text-align: center;
+                        ">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">5.2K</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Open Orders</div>
+                        </div>
+
+                        <div style="
+                            background: rgba(15, 15, 20, 0.6);
+                            padding: 1.75rem;
+                            border-radius: 16px;
+                            text-align: center;
+                        ">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">892</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">New Users</div>
+                        </div>
+                    </div>
+                </div>
+            """,
+            height=500
         )
-
-        # Display chart
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
         # Stats Section using columns
         stat1, stat2, stat3 = st.columns(3)
