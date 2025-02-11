@@ -100,7 +100,6 @@ def create_stock_cards():
         }
     </script>
     """
-
     # Popular stock tickers with their names
     popular_stocks = {
         'AAPL': 'Apple',
@@ -114,6 +113,7 @@ def create_stock_cards():
         'AMD': 'AMD',
         'NFLX': 'Netflix',
         'PLTR': 'Palantir',   
+        'BAC' : 'Bank Of America'
     }
 
     # Fetch all stock data at once

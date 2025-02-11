@@ -72,8 +72,9 @@ def load_crypto_details(user_input):
     st.subheader(f"{user_input}")
     
     if user_input:
+        cmc_api_key = st.secrets['X-CMC_PRO_API_KEY']
         headers = {
-            'X-CMC_PRO_API_KEY': '440c12ff-74f9-4ff9-92a1-07345791e1cb',
+            'X-CMC_PRO_API_KEY': cmc_api_key,
             'Accept': 'application/json'
         }
         
