@@ -6,6 +6,8 @@ from database.connection import get_database
 from datetime import datetime
 from streamlit_lottie import st_lottie
 import requests
+import random
+import os
 import time
 import yfinance as yf
 from streamlit.components.v1 import html
@@ -559,6 +561,8 @@ def trading_page():
                     if item.get('image'):
                         with col2:
                             st.image(item['image'], use_container_width=True)
+                    else:
+                        continue
                     
                     st.markdown("<hr style='margin: 2rem 0; opacity: 0.2;'>", unsafe_allow_html=True)
         else:

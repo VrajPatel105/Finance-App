@@ -2,6 +2,7 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 import requests
+import random
 
 class StockData:
     # Function to get the live data from the the market using yfinance api
@@ -122,6 +123,7 @@ class StockData:
             })
         
         return pd.DataFrame(portfolio_values)
+
 
 
 
