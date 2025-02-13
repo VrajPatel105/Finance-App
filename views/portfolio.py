@@ -1,13 +1,14 @@
 import streamlit as st
 import plost
 from models.stock import StockData
-import pandas as pd
-import numpy as np
 import requests
 from database.connection import get_database
+import pandas as pd
+from datetime import datetime, timedelta
+import plotly.graph_objects as go
 
 # Cache portfolio data fetching
-@st.cache_data(ttl="5m")  # Cache for 5 minutes
+@st.cache_data(ttl="30s")
 def fetch_portfolio_data(_db, user_id):
     return _db.get_portfolio(user_id)
 
@@ -15,7 +16,6 @@ def fetch_portfolio_data(_db, user_id):
 def fetch_crypto_data(_db, user_id):
     return _db.get_crypto_data(user_id)
 
-# Batch fetch stock prices
 @st.cache_data(ttl="5m")
 def fetch_current_prices(symbols):
     """Batch fetch stock prices for multiple symbols"""
@@ -26,7 +26,6 @@ def fetch_current_prices(symbols):
             all_data[symbol] = hist_data['Close'].iloc[-1]
     return all_data
 
-# Batch fetch crypto prices
 @st.cache_data(ttl="5m")
 def fetch_crypto_prices(symbols):
     """Batch fetch crypto prices"""
@@ -35,7 +34,6 @@ def fetch_crypto_prices(symbols):
         'Accept': 'application/json'
     }
     
-    # Join all symbols for a single API call
     symbol_string = ','.join(symbols)
     response = requests.get(
         'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
@@ -54,13 +52,118 @@ def fetch_crypto_prices(symbols):
 def fetch_portfolio_history(_db, user_id, time_period):
     return StockData.get_portfolio_history(_db, user_id, time_period)
 
-# Function for loading the portfolio page once user is logged in
+def format_timestamp(df, time_period):
+    """Format timestamp based on the selected time period"""
+    if time_period in ['3d', '5d']:
+        df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
+    elif time_period == '1m':
+        df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%Y-%m-%d')
+    else:  # 6m, 1y
+        df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%Y-%m-%d')
+    return df
+
+def calculate_period_metrics(hist_data, time_period):
+    """Calculate period-specific metrics"""
+    start_value = hist_data.iloc[0]['market_value']
+    end_value = hist_data.iloc[-1]['market_value']
+    period_change = end_value - start_value
+    period_change_pct = (period_change / start_value * 100) if start_value != 0 else 0
+    
+    return {
+        'period_change': period_change,
+        'period_change_pct': period_change_pct
+    }
+
+def create_portfolio_chart(hist_portfolio, period_code):
+    """Create a dark-themed portfolio performance chart"""
+    # Convert timestamp to datetime if it's not already
+    hist_portfolio['timestamp'] = pd.to_datetime(hist_portfolio['timestamp'])
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Add main trace
+    fig.add_trace(
+        go.Scatter(
+            x=hist_portfolio['timestamp'],
+            y=hist_portfolio['market_value'],
+            name="Portfolio Value",
+            line=dict(color='#805ad5', width=2),  # Purple line matching your theme
+            fill='tozeroy',
+            fillcolor='rgba(128, 90, 213, 0.1)'  # Subtle purple fill
+        )
+    )
+
+    # Update layout with dark theme
+    fig.update_layout(
+        plot_bgcolor='#1a1f2c',  # Dark background matching cards
+        paper_bgcolor='#1a1f2c',
+        margin=dict(l=60, r=30, t=30, b=60),
+        showlegend=False,
+        hovermode='x unified',
+        xaxis=dict(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='rgba(99, 108, 138, 0.2)',
+            zeroline=False,
+            tickformat='%b %d, %Y' if period_code in ['3d', '5d', '1m'] else '%b %Y',
+            tickfont=dict(color='#a0aec0'),
+            tickmode='auto'
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='rgba(99, 108, 138, 0.2)',
+            zeroline=False,
+            tickprefix='$',
+            tickformat=',.0f',
+            tickfont=dict(color='#a0aec0'),
+            title=dict(
+                text='Portfolio Value',
+                font=dict(size=14, color='#e2e8f0')
+            )
+        )
+    )
+
+    # Add range selector with dark theme
+    fig.update_xaxes(
+        rangeslider_visible=False,
+        rangeselector=dict(
+            buttons=list([
+                dict(count=3, label="3D", step="day", stepmode="backward"),
+                dict(count=5, label="5D", step="day", stepmode="backward"),
+                dict(count=1, label="1M", step="month", stepmode="backward"),
+                dict(count=6, label="6M", step="month", stepmode="backward"),
+                dict(count=1, label="1Y", step="year", stepmode="backward"),
+                dict(step="all", label="All")
+            ]),
+            font=dict(color="#e2e8f0"),
+            bgcolor="#2a2f3c",
+            activecolor="#805ad5",
+            bordercolor="#2d3748"
+        )
+    )
+
+    # Custom hover template with dark theme
+    fig.update_traces(
+        hovertemplate="<br>".join([
+            "<b style='color:#e2e8f0'>Date</b>: %{x|%B %d, %Y}",
+            "<b style='color:#e2e8f0'>Value</b>: $%{y:,.2f}<br>"
+        ]),
+        hoverlabel=dict(
+            bgcolor='#2a2f3c',
+            bordercolor='#2d3748',
+            font=dict(color='#e2e8f0')
+        )
+    )
+
+    return fig
+
 def portfolio_page():
     st.title('Portfolio Overview')
-
     db = get_database()
     
-    # Time period selector in a smaller column
+    # Time period selector
     col1, col2 = st.columns([1, 3])
     with col1:
         time_periods = {
@@ -76,30 +179,29 @@ def portfolio_page():
             index=4  # Default to 1 Year
         )
 
-    chart_placeholder = st.empty()
-    
+    period_code = time_periods[selected_period]
     hist_portfolio = fetch_portfolio_history(
         db, 
         st.session_state.user['id'], 
-        time_periods[selected_period]
+        period_code
     )
     
     if not hist_portfolio.empty:
-
+        # Format timestamps based on period
+        hist_portfolio = format_timestamp(hist_portfolio, period_code)
+        
+        # Calculate period-specific metrics
+        period_metrics = calculate_period_metrics(hist_portfolio, period_code)
+        
         st.title("Portfolio Performance")
 
-
-        plost.line_chart(
-        data=hist_portfolio.rename(columns={'timestamp': 'Date', 'market_value': 'Portfolio Value ($)'}),
-        x='Date',
-        y='Portfolio Value ($)',
-        height=400,
-        color='#1E88E5'
-                )
+        # Configure chart based on time period
+        fig = create_portfolio_chart(hist_portfolio, period_code)
+        st.plotly_chart(fig, use_container_width=True)
         
         # Add summary metrics
         latest = hist_portfolio.iloc[-1]
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             st.metric(
@@ -119,6 +221,13 @@ def portfolio_page():
                 label="Total Profit/Loss",
                 value=f"${profit_loss:.2f}",
                 delta=f"{(profit_loss/latest['invested']*100 if latest['invested'] != 0 else 0):.2f}%"
+            )
+        
+        with col4:
+            st.metric(
+                label=f"{selected_period} Change",
+                value=f"${period_metrics['period_change']:.2f}",
+                delta=f"{period_metrics['period_change_pct']:.2f}%"
             )
     
     # Get portfolio data

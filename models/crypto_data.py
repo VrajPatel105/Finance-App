@@ -179,7 +179,7 @@ def load_crypto_details(user_input):
                                     else:
                                         db = get_database()
                                         # Assuming a method to handle transaction
-                                        if db.update_crypto_portfolio(st.session_state.user['id'],user_input, crypto_amount, crypto_cost, True):
+                                        if db.update_crypto_portfolio(st.session_state.user['id'],user_input, crypto_amount, price_data['price'], True):
                                             st.success('Purchase successful!')
                                             st.session_state.user['balance'] -= crypto_cost  # substracting the amount from the user's total balance
                                             load_transaction_complete_lottie(True)

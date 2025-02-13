@@ -171,7 +171,6 @@ def create_sidebar():
 
         if st.button('💱 Stocks'):
             st.session_state.current_page = 'trading'
-            st.session_state.sidebar_state = "collapsed"
         
         if st.button('🌐 Crypto'):
             st.session_state.current_page = 'crypto'
@@ -184,7 +183,6 @@ def create_sidebar():
 
         if st.button('News'):
             st.session_state.current_page = 'news'
-            st.session_state.sidebar_state = "collapsed"
                         
         st.sidebar.button('🚪 Logout', on_click=logout)
 
