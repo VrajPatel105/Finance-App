@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import time
 
 def create_floating_music_player():
     spotify_playlists = [
@@ -17,7 +18,7 @@ def create_floating_music_player():
         '37i9dQZF1DWXLeA8Omikj7',  # Brain Food
         '37i9dQZF1DWUZ5bk6qqDSy',  # White Noise
         '37i9dQZF1DX0tFt8BAdFgM',  # Focus Space
-        '37i9dQZF1DX9sIqqvKsjG8'   # Reading and Focus
+        '37i9dQZF1DX9sIqqvKsjG8',  # Reading and Focus
         '37i9dQZF1DX5trt9i14X7j',
         '37i9dQZF1DX8Uebhn9wzrS',
         '37i9dQZF1DX0SM0LYsmbMT',
@@ -32,11 +33,21 @@ def create_floating_music_player():
         '37i9dQZF1DWXe9gFZP0gtP',
         '37i9dQZF1DWZqd5JICZI0u',
         '37i9dQZF1DX3PFzdbtx1Us',
-        '37i9dQZF1DX9uKNf5jGX6m'   
+        '37i9dQZF1DX9uKNf5jGX6m'
     ]
 
-    random_playlist = random.choice(spotify_playlists)
-    iframe_src = f"https://open.spotify.com/embed/playlist/{random_playlist}?utm_source=generator"
+    # Initialize session state for playlist and timestamp if they don't exist
+    if 'current_playlist' not in st.session_state:
+        st.session_state.current_playlist = random.choice(spotify_playlists)
+        st.session_state.last_update_time = time.time()
+
+    # Check if 5 minutes have passed
+    current_time = time.time()
+    if current_time - st.session_state.last_update_time >= 120:  # 120 seconds 
+        st.session_state.current_playlist = random.choice(spotify_playlists)
+        st.session_state.last_update_time = current_time
+
+    iframe_src = f"https://open.spotify.com/embed/playlist/{st.session_state.current_playlist}?utm_source=generator"
 
     st.markdown(f"""
     <style>
@@ -84,3 +95,7 @@ def create_floating_music_player():
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+# Usage in your Streamlit app
+if __name__ == "__main__":
+    create_floating_music_player()
