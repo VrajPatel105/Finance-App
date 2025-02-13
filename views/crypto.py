@@ -2,12 +2,15 @@ import streamlit as st
 import requests
 from models.crypto_data import load_crypto_details
 
+# Using coin gecko api to fetch data about crypto.
 
 def load_crypto():
     st.title('Cryptocurrencies')
+    # getting input from the user
     user_input = st.text_input('Search a crypto-currency', '').upper()
 
     if user_input:
+        # loading the crypto details based on the user's input entered.
         load_crypto_details(user_input)
     
 
@@ -24,7 +27,7 @@ def load_crypto():
         response = requests.get(url, params=params)
         data = response.json()
         
-        # Create 3x4 grid for cards
+        # Creating 3x4 grid for cards
         cols = st.columns(3)
         
         for idx, coin in enumerate(data):
