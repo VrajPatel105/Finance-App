@@ -42,7 +42,7 @@ def create_floating_music_player():
     <style>
         .floating-player {{
             position: fixed;
-            right: 20px;
+            left: 20px;
             bottom: 20px;
             width: 320px;
             background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(20, 20, 25, 0.95));
@@ -84,8 +84,3 @@ def create_floating_music_player():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-# Test the player
-if __name__ == "__main__":
-    st.title("Main Content")
-    create_floating_music_player()

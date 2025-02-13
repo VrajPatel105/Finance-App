@@ -14,7 +14,7 @@ from views.portfolio import portfolio_page
 from views.crypto import load_crypto
 from views.ai_assistant import Assistant
 from views.news import load_news
-
+from views.music import create_floating_music_player
 # Keep all your existing styles...
 st.markdown("""
    <style>
@@ -132,6 +132,8 @@ def load_user_info():
 def create_sidebar():
     with st.sidebar:
         load_user_info()
+        create_floating_music_player()
+    
         
         st.markdown("""
     <style>
@@ -234,6 +236,8 @@ def init_session_state():
 def main():
     init_session_state()
     db = get_database()
+
+
 
     # Check for Enter key press to prevent page change
     for key in st.session_state.keys():
