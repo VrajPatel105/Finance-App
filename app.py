@@ -1,11 +1,12 @@
 import streamlit as st
 import json
-
+# We are setting the page config here.
 st.set_page_config(
        page_title="Finch",
        page_icon='resources/finch.ico',
        layout="wide"
    )
+# importing all the libraries and functions from other classes.
 from database.connection import get_database
 from views.auth import register_page, login_page, logout
 from views.welcome import welcome_page
@@ -15,7 +16,8 @@ from views.crypto import load_crypto
 from views.ai_assistant import Assistant
 from views.news import load_news
 from views.music import create_floating_music_player
-# Keep all your existing styles...
+
+# css for user info
 st.markdown("""
    <style>
        .stApp {
@@ -115,6 +117,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def load_user_info():
+   # Fetching the user's balance from session state.
    balance = st.session_state.user['balance']
    delta = balance - 100000 
    
@@ -128,10 +131,13 @@ def load_user_info():
        </div>
    </div>
    """, unsafe_allow_html=True)
-
+# Function for creating sidebar.
 def create_sidebar():
     with st.sidebar:
+       # loading the user info function.
         load_user_info()
+       # loading spotify song grid from music.py.
+       # This music player sticks with the sidebar.
         create_floating_music_player()
     
         
@@ -168,6 +174,9 @@ def create_sidebar():
     </style>
 """, unsafe_allow_html=True)
 
+           # Buttons to load in the sidebar.
+           # Here we are also maintaining user session state by using a current page to keep a track on which page is the user currently on.
+           # We use the streamlit inbuild save session state funciton to save the session. This will keep the user logged in until not logged out.
         if st.button('💱 Stocks', key='stocks_button'):
             st.session_state.current_page = 'trading'
             save_session_state()
@@ -195,6 +204,7 @@ def create_sidebar():
                         
         st.sidebar.button('🚪 Logout', on_click=logout)
 
+# if the user is logged in, then we are saving the session state.
 def save_session_state():
     if st.session_state.logged_in:
         state_data = {
@@ -207,7 +217,7 @@ def save_session_state():
 
 
 def init_session_state():
-    # Try to load saved state from query params first
+    # Trying to load saved state from query params first
     try:
         saved_state = st.query_params.get('session_state')
         if saved_state:
@@ -229,21 +239,21 @@ def init_session_state():
             st.session_state.current_page = 'welcome'
         if 'user' not in st.session_state:
             st.session_state.user = None
-            
+            # this is for saving the chat with finch assistant for the particular user. (It will keep history of the chat for some time.)
     if 'ai_chat_history' not in st.session_state:
         st.session_state.ai_chat_history = []
 
 def main():
     init_session_state()
+       # Calling the database instance
     db = get_database()
-
-
 
     # Check for Enter key press to prevent page change
     for key in st.session_state.keys():
         if key.startswith('formsubmit'):
             st.session_state[key] = False
 
+       # calling the functions based on the user's current page. And if user don't have any current page, then it will load the welcome page.
     if not st.session_state.logged_in:
         if st.session_state.current_page == 'register':
             register_page(db)
