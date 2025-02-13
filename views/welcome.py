@@ -1,3 +1,4 @@
+# Import all the necessary libraries and functions from other classes.
 import streamlit as st
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
@@ -5,6 +6,7 @@ import numpy as np
 from streamlit.components.v1 import html
 import pandas as pd
 
+# Function to create a card (black purple based theme). You pass the icon for the card, title and the description.
 def create_feature_card(icon, title, description):
    return f'''
        <div class="feature-card" style="
@@ -12,8 +14,8 @@ def create_feature_card(icon, title, description):
            border-radius: 20px;
            padding: 1.5rem;
            border: 1px solid rgba(147, 51, 234, 0.2);
-           margin-bottom: 0.9rem;  /* Increased to 1.2rem (~12px) to force spacing */
-           display: block;  /* Ensures block-level behavior */
+           margin-bottom: 0.9rem;
+           display: block;  /* This Ensures block-level behavior */
            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
            position: relative;
@@ -49,7 +51,7 @@ def create_feature_card(icon, title, description):
    '''
 
 
-
+# Creating stats card which ttakes label, value and change as parameters.
 def create_stat_card(label, value, change):
     return f'''
         <div class="stat-card" style="
@@ -75,9 +77,9 @@ def create_stat_card(label, value, change):
             <div style="font-size: 0.9rem; color: #22c55e;">↑ {change}</div>
         </div>
     '''
-
+# Main welcome page function.
 def welcome_page():
-    # Base styles with animations
+    # Basic styles with animations (black-purple theme)
     st.markdown("""
         <style>
         @keyframes gradient {
@@ -259,6 +261,7 @@ def welcome_page():
     # Login/Register Buttons
     login_col, register_col = st.columns(2)
 
+   # Updating the current page based on the user's behaviour.
     with login_col:
         if st.button("🔐 Login", key="login_button", use_container_width=True, type="primary"):
             st.session_state.current_page = 'login'
@@ -274,7 +277,7 @@ def welcome_page():
     col1, col2 = st.columns([5, 7])
 
     with col1:
-        # Feature Cards
+        # Feature Cards. Calling the feature card function below.
         features_container = st.container()
         
         features_container.markdown(
@@ -304,7 +307,7 @@ def welcome_page():
             unsafe_allow_html=True
         )
 
-
+   # Using streamlit components v1 html lib to load the html code in streamlit properly. This library handles code well in certain situation.
     with col2:
         st.components.v1.html(
             """
@@ -473,8 +476,9 @@ def welcome_page():
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
     ''', unsafe_allow_html=True)
 
+   # Columns with few information about Finch.
     col1, col2, col3, col4 = st.columns(4)
-    
+   
     with col1:
         st.markdown(create_feature_card("💡", "AI-Powered", 
                    "Advanced algorithms for smarter trading decisions"), unsafe_allow_html=True)
