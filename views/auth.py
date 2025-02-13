@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 
+# main register page function.
 def register_page(db):
     st.markdown("""
         <style>
@@ -188,6 +189,8 @@ def register_page(db):
         elif not all([name, email, password]):
             st.error('📝 Please fill all fields')
         else:
+            # if else is executed, then it means that it's a new user.  
+            # We will call add_user function  from db_manager.py and pass the user's info.
             user_id = db.add_user(name, email, password)
             if user_id:
                 st.success('🎉 Account created successfully!')
@@ -240,6 +243,7 @@ def logout():
     st.session_state.current_page = 'login'
     st.rerun()
 
+# function for login page
 def login_page(db):
     st.markdown("""
         <style>
@@ -363,7 +367,10 @@ def login_page(db):
         email = st.text_input('Email', placeholder='Enter your email')
         password = st.text_input('Password', type='password', placeholder='Enter your password')
         submitted = st.form_submit_button('Sign In', use_container_width=True)
-        
+
+        # Calling verify_user function and authenticating if the user has entered the correct password or not.
+        # Here we are using SHA256 encoder, meaning that when user register's the password entered is stored in hash format and sha256 hash cannot be decocde at all.
+        # So to verify the user, we try to generate a new hash from the password which user entered when "logging in" and we try to match the temporary generated hash with the original hash stored in the database.
         if submitted:
             user = db.verify_user(email, password)
             if user:
@@ -382,7 +389,7 @@ def login_page(db):
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Security message
+    # brief security message
     st.markdown("""
         <div style="
             text-align: center;
