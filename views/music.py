@@ -19,21 +19,21 @@ def create_floating_music_player():
         '37i9dQZF1DWUZ5bk6qqDSy',  # White Noise
         '37i9dQZF1DX0tFt8BAdFgM',  # Focus Space
         '37i9dQZF1DX9sIqqvKsjG8',  # Reading and Focus
-        '37i9dQZF1DX5trt9i14X7j',
-        '37i9dQZF1DX8Uebhn9wzrS',
-        '37i9dQZF1DX0SM0LYsmbMT',
-        '37i9dQZF1DX7K31D69s4M1',
-        '37i9dQZF1DXc8kgYqQLMfH',
-        '37i9dQZF1DX692WcMwL2yW',
-        '37i9dQZF1DXaXB8fQg7xif',
-        '37i9dQZF1DWZeKCadgRdKQ',
-        '37i9dQZF1DX1s9knjP51Oa',
-        '37i9dQZF1DWWQRwui0ExPn',
-        '37i9dQZF1DX9RwfGbeGQwP',
-        '37i9dQZF1DWXe9gFZP0gtP',
-        '37i9dQZF1DWZqd5JICZI0u',
-        '37i9dQZF1DX3PFzdbtx1Us',
-        '37i9dQZF1DX9uKNf5jGX6m'
+        '37i9dQZF1DX5trt9i14X7j'  # Coding Mode
+        '37i9dQZF1DX8Uebhn9wzrS'  # Chill Lofi Study Beats
+        '37i9dQZF1DX0SM0LYsmbMT'  # Jazz Vibes
+        '37i9dQZF1DX7K31D69s4M1'  # Piano in the Background
+        '37i9dQZF1DXc8kgYqQLMfH'  # Lush Lofi
+        '37i9dQZF1DX692WcMwL2yW'  # All-Nighter
+        '37i9dQZF1DXaXB8fQg7xif'  # Dance Party
+        '37i9dQZF1DWZeKCadgRdKQ'  # Deep Focus
+        '37i9dQZF1DX1s9knjP51Oa'  # Calm Vibes
+        '37i9dQZF1DWWQRwui0ExPn'  # LoFi Beats
+        '37i9dQZF1DX9RwfGbeGQwP'  # Chill Hits
+        '37i9dQZF1DWXe9gFZP0gtP'  # Relax & Unwind
+        '37i9dQZF1DWZqd5JICZI0u'  # Evening Chill
+        '37i9dQZF1DX3PFzdbtx1Us'  # Chillout Lounge
+        '37i9dQZF1DX9uKNf5jGX6m'  # Study Break
     ]
 
     # Initialize session state for playlist and timestamp if they don't exist
@@ -41,14 +41,16 @@ def create_floating_music_player():
         st.session_state.current_playlist = random.choice(spotify_playlists)
         st.session_state.last_update_time = time.time()
 
-    # Check if 5 minutes have passed
+    # Check if 3 minutes have passed and if yes, then we randomly select the next playlist and display it.
     current_time = time.time()
-    if current_time - st.session_state.last_update_time >= 120:  # 120 seconds 
+    if current_time - st.session_state.last_update_time >= 180:  # 180 seconds 
         st.session_state.current_playlist = random.choice(spotify_playlists)
         st.session_state.last_update_time = current_time
 
     iframe_src = f"https://open.spotify.com/embed/playlist/{st.session_state.current_playlist}?utm_source=generator"
 
+    # html and css to display the spotify section at the bottom left corner. We particulary dont need it to be positioned, if we are generating it inside the sidebar.
+    # But here we are not generating inside the sidebar, so we have to position it.
     st.markdown(f"""
     <style>
         .floating-player {{
@@ -95,7 +97,3 @@ def create_floating_music_player():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-# Usage in your Streamlit app
-if __name__ == "__main__":
-    create_floating_music_player()
