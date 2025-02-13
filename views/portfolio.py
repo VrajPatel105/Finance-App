@@ -88,15 +88,15 @@ def create_portfolio_chart(hist_portfolio, period_code):
             x=hist_portfolio['timestamp'],
             y=hist_portfolio['market_value'],
             name="Portfolio Value",
-            line=dict(color='#805ad5', width=2),  # Purple line matching your theme
+            line=dict(color='#805ad5', width=2),  
             fill='tozeroy',
-            fillcolor='rgba(128, 90, 213, 0.1)'  # Subtle purple fill
+            fillcolor='rgba(128, 90, 213, 0.1)' 
         )
     )
 
     # Update layout with dark theme
     fig.update_layout(
-        plot_bgcolor='#1a1f2c',  # Dark background matching cards
+        plot_bgcolor='#1a1f2c',  
         paper_bgcolor='#1a1f2c',
         margin=dict(l=60, r=30, t=30, b=60),
         showlegend=False,

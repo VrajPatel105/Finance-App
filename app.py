@@ -1,11 +1,21 @@
 import streamlit as st
+import json
 
 st.set_page_config(
        page_title="Finch",
        page_icon='resources/finch.ico',
        layout="wide"
    )
+from database.connection import get_database
+from views.auth import register_page, login_page, logout
+from views.welcome import welcome_page
+from views.trading import trading_page
+from views.portfolio import portfolio_page
+from views.crypto import load_crypto
+from views.ai_assistant import Assistant
+from views.news import load_news
 
+# Keep all your existing styles...
 st.markdown("""
    <style>
        .stApp {
@@ -104,18 +114,6 @@ st.markdown("""
    </style>
 """, unsafe_allow_html=True)
 
-
-from database.connection import get_database
-from views.auth import register_page, login_page, logout
-from views.welcome import welcome_page
-from views.trading import trading_page
-from views.portfolio import portfolio_page
-from views.crypto import load_crypto
-from views.ai_assistant import Assistant
-from views.news import load_news
-
-# Function to load a side bar containing a portfolio, trade and logout button
-
 def load_user_info():
    balance = st.session_state.user['balance']
    delta = balance - 100000 
@@ -131,7 +129,6 @@ def load_user_info():
    </div>
    """, unsafe_allow_html=True)
 
-
 def create_sidebar():
     with st.sidebar:
         load_user_info()
@@ -141,7 +138,7 @@ def create_sidebar():
     .stButton > button {
         width: 100%;
         padding: 16px 24px;
-        background: linear-gradient(to right, #15326d, #1e4fd8);  /* Darker blue shades */
+        background: linear-gradient(to right, #15326d, #1e4fd8);
         color: white;
         border: none;
         border-radius: 12px;
@@ -151,12 +148,12 @@ def create_sidebar():
         align-items: center;
         margin-bottom: 16px;
         transition: all 0.3s;
-        box-shadow: 0 4px 6px -1px rgba(30, 79, 216, 0.1);  /* Adjusted shadow color */
+        box-shadow: 0 4px 6px -1px rgba(30, 79, 216, 0.1);
     }
     
     .stButton > button:hover {
-        background: linear-gradient(to right, #122a5c, #15326d);  /* Darker blue shades for hover */
-        box-shadow: 0 8px 12px -3px rgba(30, 79, 216, 0.25);  /* Adjusted shadow color */
+        background: linear-gradient(to right, #122a5c, #15326d);
+        box-shadow: 0 8px 12px -3px rgba(30, 79, 216, 0.25);
     }
     
     .stButton > button span:first-child {
@@ -169,61 +166,104 @@ def create_sidebar():
     </style>
 """, unsafe_allow_html=True)
 
-        if st.button('💱 Stocks'):
+        if st.button('💱 Stocks', key='stocks_button'):
             st.session_state.current_page = 'trading'
+            save_session_state()
+            st.rerun()
         
-        if st.button('🌐 Crypto'):
+        if st.button('🌐 Crypto', key='crypto_button'):
             st.session_state.current_page = 'crypto'
+            save_session_state()
+            st.rerun()
         
-        if st.button('📊 Portfolio'):
+        if st.button('📊 Portfolio', key='portfolio_button'):
             st.session_state.current_page = 'portfolio'
+            save_session_state()
+            st.rerun()
 
-        if st.button('🤖 AI Assistant'):
+        if st.button('🤖 AI Assistant', key='ai_button'):
             st.session_state.current_page = 'ai_assistant'
+            save_session_state()
+            st.rerun()
 
-        if st.button('News'):
+        if st.button('News', key='news_button'):
             st.session_state.current_page = 'news'
+            save_session_state()
+            st.rerun()
                         
         st.sidebar.button('🚪 Logout', on_click=logout)
 
+def save_session_state():
+    if st.session_state.logged_in:
+        state_data = {
+            'logged_in': st.session_state.logged_in,
+            'current_page': st.session_state.current_page,
+            'user': st.session_state.user
+        }
+        st.query_params['session_state'] = json.dumps(state_data)
+
+
 
 def init_session_state():
-   if not hasattr(st.session_state, 'logged_in'):
-       st.session_state.logged_in = False
-   if not hasattr(st.session_state, 'current_page'):
-       st.session_state.current_page = 'welcome'
-   if not hasattr(st.session_state, 'user'):
-       st.session_state.user = None
-   if not hasattr(st.session_state, 'ai_chat_history'):
-       st.session_state.ai_chat_history = []
+    # Try to load saved state from query params first
+    try:
+        saved_state = st.query_params.get('session_state')
+        if saved_state:
+            state_data = json.loads(saved_state)
+            st.session_state.logged_in = state_data.get('logged_in', False)
+            st.session_state.current_page = state_data.get('current_page', 'welcome')
+            st.session_state.user = state_data.get('user', None)
+        else:
+            if 'logged_in' not in st.session_state:
+                st.session_state.logged_in = False
+            if 'current_page' not in st.session_state:
+                st.session_state.current_page = 'welcome'
+            if 'user' not in st.session_state:
+                st.session_state.user = None
+    except:
+        if 'logged_in' not in st.session_state:
+            st.session_state.logged_in = False
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = 'welcome'
+        if 'user' not in st.session_state:
+            st.session_state.user = None
+            
+    if 'ai_chat_history' not in st.session_state:
+        st.session_state.ai_chat_history = []
 
 def main():
-   
-   init_session_state()
-   db = get_database()
+    init_session_state()
+    db = get_database()
 
-   if not st.session_state.logged_in:
-       if st.session_state.current_page == 'register':
-           register_page(db)
-       elif st.session_state.current_page == 'login':
-           login_page(db)
-       elif st.session_state.current_page == 'crypto':
-           load_crypto()
-       else:
-           welcome_page()
-   else:
-       create_sidebar()
-       if st.session_state.current_page == 'portfolio':
-           portfolio_page()
-       elif st.session_state.current_page == 'crypto':
-           load_crypto()
-       elif st.session_state.current_page == 'ai_assistant':
-           ai = Assistant()
-           ai.run()
-       elif st.session_state.current_page == 'news':
+    # Check for Enter key press to prevent page change
+    for key in st.session_state.keys():
+        if key.startswith('formsubmit'):
+            st.session_state[key] = False
+
+    if not st.session_state.logged_in:
+        if st.session_state.current_page == 'register':
+            register_page(db)
+        elif st.session_state.current_page == 'login':
+            login_page(db)
+        elif st.session_state.current_page == 'crypto':
+            load_crypto()
+        else:
+            welcome_page()
+    else:
+        create_sidebar()
+        save_session_state()  # Save state after confirming logged in
+        
+        if st.session_state.current_page == 'portfolio':
+            portfolio_page()
+        elif st.session_state.current_page == 'crypto':
+            load_crypto()
+        elif st.session_state.current_page == 'ai_assistant':
+            ai = Assistant()
+            ai.run()
+        elif st.session_state.current_page == 'news':
             load_news()
-       else:
-           trading_page()
+        else:
+            trading_page()
 
 if __name__ == "__main__":
-   main()
+    main()

@@ -232,7 +232,10 @@ def logout():
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
-            
+    
+    # Clear browser storage
+    st.query_params.clear()
+    
     # Reset page to login
     st.session_state.current_page = 'login'
     st.rerun()

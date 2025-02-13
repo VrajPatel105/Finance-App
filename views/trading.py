@@ -376,7 +376,6 @@ def create_stock_cards():
         body::-webkit-scrollbar {
             display: none;
         }
-        
     </style>
     """
     
