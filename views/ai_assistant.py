@@ -1,15 +1,26 @@
+# Importing all the necessary libraries and functions.
 import streamlit as st
-from openai import OpenAI
+from openai import OpenAI # Since it's a chatbot, we are using openai's api.
 import yfinance as yf
-from PIL import Image
+from PIL import Image # This is just to laod the Finch logo in the chat bot.
 
+
+# For this assistant, we are prompt engineering the ticker that the user will enter. 
+# We will fetch the ticker's detailed info from yfinance 
+# Once we get the detailed info, we can pass it to the LLM ( Open ai model) as an input
+# This will provide precise response from the LLM
+# here we are using the GPT-4o mini LLM
+
+
+# Creating a class
 class Assistant:
+    # Constructor for initializing the api key and the client.
     def __init__(self):
         self.api_key = st.secrets["OPENAI_API_KEY"]
         # Initializing the client..
         self.openai_client = OpenAI(api_key=self.api_key)
 
-# getting data from yfinance
+    # getting data from yfinance 
     def get_market_data(self, symbol):
         try:
             stock = yf.Ticker(symbol)
@@ -31,14 +42,19 @@ class Assistant:
             print(f"Error fetching data: {e}")
             return None
 
+    # Function for enhancing the prompt by using the ticker's data that we fetched from yfinance.
     def enhance_prompt(self, prompt, symbol):
         if data := self.get_market_data(symbol):
             return f"""Current {symbol} data:
+
+            
 Price: {data['price']} | Change: {data['change']} | Volume: {data['volume']}
 
+# Question prompt.
 Question: {prompt}"""
         return prompt
 
+    # Applying the styling, black purple theme.
     @staticmethod
     def apply_styling():
         st.markdown("""
@@ -116,6 +132,7 @@ Question: {prompt}"""
             </style>
         """, unsafe_allow_html=True)
 
+    # Function for storing the user's chat history
     @staticmethod
     def init_chat_history():
         return [{
