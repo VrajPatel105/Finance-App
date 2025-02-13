@@ -1,9 +1,14 @@
+# Importing required libraries
 import streamlit as st
 import yfinance as yf
 import streamlit.components.v1 as components
 
+# Here we are embedding a TradingView chart widget into a web page. This is provided from tradingview officially for it to use by developers.
+
+# chart for stock
 def create_stock_chart(symbol):
 
+        # here we are 
         tradingview_html = f"""
             <!DOCTYPE html>
             <html>
@@ -40,7 +45,6 @@ def create_stock_chart(symbol):
 
 
 # chart for crypto..
-
 def create_crypto_chart(symbol):
 
     # TradingView Chart Embedded using st.components.html()
