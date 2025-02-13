@@ -1,26 +1,30 @@
+# Importing all the necessary function and libraries
 import streamlit as st
 from models.stock import StockData
 from utils.formatters import format_number
 from utils.stock_utils import create_stock_chart
 from database.connection import get_database
 from datetime import datetime
-from streamlit_lottie import st_lottie
+from streamlit_lottie import st_lottie # streamlit lottie is an animations library. We can use it to display pre-existing animations by just importing the animation
 import requests
 import random
 import os
 import time
-import yfinance as yf
+import yfinance as yf # yfinance to get the latest ticker information
 from streamlit.components.v1 import html
 
+# Caching the data for the next 5 minutes.
 @st.cache_data(ttl="5m")
 def fetch_multiple_stocks_data(symbols):
     """
-    Fetch data for multiple stocks at once with caching
+    Fetch data for multiple stocks at once with caching.
+    This is done to just reduce the amount of api calls. 
+    If we keep on hitting on the api, after sometime, we will get an error.
     """
     try:
         # Download data for all symbols at once
         tickers = yf.Tickers(" ".join(symbols))
-        stock_data = {}
+        stock_data = {} # To store all info for all the tickers at one place.
         
         for symbol in symbols:
             try:
@@ -35,11 +39,13 @@ def fetch_multiple_stocks_data(symbols):
             except Exception:
                 stock_data[symbol] = None
                 
-        return stock_data
+        return stock_data # returning back the stock_data dictionary.
     except Exception as e:
+        # else raise an error and return empty dictionary.
         st.error(f"Error fetching stock data: {str(e)}")
         return {}
 
+# function to create stock cards that will display 15 selected stock info.
 def create_stock_cards():
     # Initialize session state for selected symbol if it doesn't exist
     if 'selected_symbol' not in st.session_state:
@@ -119,16 +125,17 @@ def create_stock_cards():
     }
 
     # Fetch all stock data at once
-    stock_data = fetch_multiple_stocks_data(list(popular_stocks.keys()))
+    stock_data = fetch_multiple_stocks_data(list(popular_stocks.keys())) # here we are passing the tickers and in return we are recieving a dictionary with information about all the tickers.
 
     # Start grid container
     html_content = """
     <div class="stock-grid-container">
     """
-    
+
+    # running a loop on the returned dictionary that we stored in stock_data and fetching all the details for each ticker and using html and css to display those ticker's information in form of cards.
     for symbol, name in popular_stocks.items():
         try:
-            data = stock_data.get(symbol, {})
+            data = stock_data.get(symbol, {}) # since the .get() function in Python is used with dictionaries to retrieve the value associated with a given key, we are using it here.
             if data:
                 price = data.get('currentPrice', 0)
                 volume = data.get('volume', 0)
@@ -379,7 +386,7 @@ def create_stock_cards():
     </style>
     """
     
-    # Combine styles and content
+    # Combine styles and content and loading all together from streamlit components v1 html library.
     full_html = f"{js_code}{styles}{html_content}"
     
     # Render the component
@@ -401,8 +408,9 @@ def trading_page():
     else:
         # Get the stock data and display it
         hist_data, stock_info = StockData.get_stock_data(symbol)
-
+    
         if hist_data is not None and not hist_data.empty and stock_info is not None:
+        # if we have all the information then:
             # Display stock info
             col1, col2, col3 = st.columns(3)
             try:
@@ -427,9 +435,10 @@ def trading_page():
                         value=format_number(hist_data['Volume'].iloc[-1])
                     )
 
-                # Display chart
+                # Display trading view chart that's provided from tradingview for developers. We are calling the function that's in utils.stock 
                 create_stock_chart(symbol)
-            
+
+            # This function is for loading the animation when a user places any order.
                 def load_transaction_complete_lottie():
                     def load_lottieurl(url: str):
                         r = requests.get(url)
@@ -511,9 +520,9 @@ def trading_page():
                             
                             # Firstly checking if the user has enough shares to sell. If not then error
                             if db.update_portfolio(st.session_state.user['id'], symbol, shares_to_sell, current_price, False):
-                                st.success(f'Successfully Sold {shares_to_sell} shares of {symbol}')  # User had shares for that stocks so sell 
+                                st.success(f'Successfully Sold {shares_to_sell} shares of {symbol}')  # if user has shares for that stocks then sell 
                                 load_transaction_complete_lottie()
-                                st.session_state.user['balance'] += total_share_cost_for_selling
+                                st.session_state.user['balance'] += total_share_cost_for_selling # updating the user's balance
                                 st.rerun()
                             else:
                                 st.error('Insufficient amount of Shares')  # else failed
@@ -525,9 +534,10 @@ def trading_page():
 
     if symbol:
         st.markdown("---")
+        # News section for entered ticker.
         st.subheader(f"Latest News for {symbol}")
         
-        
+        # fetching the news using newsapi.
         news = StockData.get_stock_news(symbol)
         
         if news:
