@@ -37,6 +37,7 @@ def fetch_stock_news():
         st.error(f"Error fetching stock news: {str(e)}")
         return []
 
+# used alpha vantage api
 def fetch_crypto_news():
     """Fetch real-time cryptocurrency news from CryptoCompare - returns latest 10 articles
     with truncated descriptions for better readability"""
@@ -61,44 +62,7 @@ def fetch_crypto_news():
         st.error(f"Error fetching crypto news: {str(e)}")
         return []
 
-def fetch_market_data():
-    """Fetch real-time market data for S&P 500, Bitcoin, and Ethereum from Alpha Vantage.
-    Returns current prices and price changes where available."""
-    try:
-        # Fetch S&P 500 data using SPY ETF as proxy
-        sp500_url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey={ALPHA_VANTAGE_API_KEY}"
-        sp500_response = requests.get(sp500_url)
-        sp500_data = sp500_response.json().get("Global Quote", {})
-        
-        # Get current Bitcoin/USD exchange rate
-        btc_url = f"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=USD&apikey={ALPHA_VANTAGE_API_KEY}"
-        btc_response = requests.get(btc_url)
-        btc_data = btc_response.json().get("Realtime Currency Exchange Rate", {})
-        
-        # Get current Ethereum/USD exchange rate
-        eth_url = f"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=ETH&to_currency=USD&apikey={ALPHA_VANTAGE_API_KEY}"
-        eth_response = requests.get(eth_url)
-        eth_data = eth_response.json().get("Realtime Currency Exchange Rate", {})
-        
-        return {
-            "sp500": {
-                "price": float(sp500_data.get("05. price", 0)),
-                "change": float(sp500_data.get("09. change", 0)),
-                "change_percent": float(sp500_data.get("10. change percent", "0").strip("%"))
-            },
-            "btc": {
-                "price": float(btc_data.get("5. Exchange Rate", 0)),
-                "change_percent": 0  # Alpha Vantage doesn't provide change % for crypto
-            },
-            "eth": {
-                "price": float(eth_data.get("5. Exchange Rate", 0)),
-                "change_percent": 0
-            }
-        }
-    except Exception as e:
-        st.error(f"Error fetching market data: {str(e)}")
-        return None
-    
+# function to load news. This is also in a black purple theme.
 def load_news():
     st.markdown("""
     <style>
@@ -279,7 +243,7 @@ def load_news():
     if 'last_refresh' not in st.session_state:
         st.session_state.last_refresh = datetime.now()
 
-    # Create header with refresh controls
+    # Create header with refresh controls, keeping updated news every time the user press the refresh button.
     col1, col2 = st.columns([2, 1])
     with col2:
         # Display last update time
