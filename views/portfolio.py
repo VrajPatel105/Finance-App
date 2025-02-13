@@ -1,5 +1,4 @@
 import streamlit as st
-import plost
 from models.stock import StockData
 import requests
 from database.connection import get_database
@@ -23,7 +22,7 @@ def fetch_current_prices(symbols):
     for symbol in symbols:
         hist_data, _ = StockData.get_stock_data(symbol, period='1d')
         if hist_data is not None and not hist_data.empty:
-            all_data[symbol] = hist_data['Close'].iloc[-1]
+            all_data[symbol] = hist_data['Close'].iloc[-1] # getting the last closing price for the ticker. 
     return all_data
 
 @st.cache_data(ttl="5m")
@@ -33,14 +32,14 @@ def fetch_crypto_prices(symbols):
         'X-CMC_PRO_API_KEY': '440c12ff-74f9-4ff9-92a1-07345791e1cb',
         'Accept': 'application/json'
     }
-    
+    # using coinmarketcap to fetch informatino for crypto.
     symbol_string = ','.join(symbols)
     response = requests.get(
         'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
         headers=headers,
         params={'symbol': symbol_string}
     )
-    data = response.json()
+    data = response.json() # storing it in data
     
     prices = {}
     for symbol in symbols:
@@ -74,8 +73,8 @@ def calculate_period_metrics(hist_data, time_period):
         'period_change_pct': period_change_pct
     }
 
+# functino for creating portfolio chart (This is also dark purple themed.)
 def create_portfolio_chart(hist_portfolio, period_code):
-    """Create a dark-themed portfolio performance chart"""
     # Convert timestamp to datetime if it's not already
     hist_portfolio['timestamp'] = pd.to_datetime(hist_portfolio['timestamp'])
     
@@ -94,7 +93,7 @@ def create_portfolio_chart(hist_portfolio, period_code):
         )
     )
 
-    # Update layout with dark theme
+    # layout with purple theme.
     fig.update_layout(
         plot_bgcolor='#1a1f2c',  
         paper_bgcolor='#1a1f2c',
@@ -158,152 +157,6 @@ def create_portfolio_chart(hist_portfolio, period_code):
     )
 
     return fig
-
-def portfolio_page():
-    st.title('Portfolio Overview')
-    db = get_database()
-    
-    # Time period selector
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        time_periods = {
-            '3 Days': '3d',
-            '5 Days': '5d',
-            '1 Month': '1m',
-            '6 Months': '6m',
-            '1 Year': '1y'
-        }
-        selected_period = st.selectbox(
-            "Time Period",
-            options=list(time_periods.keys()),
-            index=4  # Default to 1 Year
-        )
-
-    period_code = time_periods[selected_period]
-    hist_portfolio = fetch_portfolio_history(
-        db, 
-        st.session_state.user['id'], 
-        period_code
-    )
-    
-    if not hist_portfolio.empty:
-        # Format timestamps based on period
-        hist_portfolio = format_timestamp(hist_portfolio, period_code)
-        
-        # Calculate period-specific metrics
-        period_metrics = calculate_period_metrics(hist_portfolio, period_code)
-        
-        st.title("Portfolio Performance")
-
-        # Configure chart based on time period
-        fig = create_portfolio_chart(hist_portfolio, period_code)
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Add summary metrics
-        latest = hist_portfolio.iloc[-1]
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric(
-                label="Total Invested",
-                value=f"${latest['invested']:.2f}",
-            )
-        
-        with col2:
-            st.metric(
-                label="Current Value",
-                value=f"${latest['market_value']:.2f}",
-            )
-        
-        with col3:
-            profit_loss = latest['profit_loss']
-            st.metric(
-                label="Total Profit/Loss",
-                value=f"${profit_loss:.2f}",
-                delta=f"{(profit_loss/latest['invested']*100 if latest['invested'] != 0 else 0):.2f}%"
-            )
-        
-        with col4:
-            st.metric(
-                label=f"{selected_period} Change",
-                value=f"${period_metrics['period_change']:.2f}",
-                delta=f"{period_metrics['period_change_pct']:.2f}%"
-            )
-    
-    # Get portfolio data
-    portfolio = fetch_portfolio_data(db, st.session_state.user['id'])
-    
-    st.markdown('---')
-
-    # Process and display stock portfolio
-    if portfolio:
-        st.markdown("<h1 style='text-align: center;'>STOCKS</h1>", unsafe_allow_html=True)
-        
-        with st.spinner('Loading current holdings'):
-            # Prepare symbols for batch fetching
-            stock_symbols = [symbol for symbol, _, _ in portfolio]
-            stock_prices = fetch_current_prices(stock_symbols)
-            
-            portfolio_data = []
-            # Here we are calling the get stock data function and the function returns historic data in form of a dataframe
-            for symbol, shares, avg_price in portfolio:
-                if symbol in stock_prices:
-                    current_price = stock_prices[symbol]
-                    position_value = shares * current_price
-                    profit_loss = (current_price - avg_price) * shares
-                    profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
-                    
-                    portfolio_data.append({
-                        'Symbol': symbol,
-                        'Shares': f"{shares:,.2f}",
-                        'Avg Price': f'${avg_price:,.2f}',
-                        'Current Price': f'${current_price:,.2f}',
-                        'Value': f'${position_value:,.2f}',
-                        'raw_profit_loss': profit_loss,
-                        'raw_profit_loss_pct': profit_loss_pct,
-                        'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
-                    })
-            
-            if portfolio_data:
-                create_asset_cards(portfolio_data)
-    else:
-        st.info('Your portfolio is empty. Start trading to build your portfolio!')
-
-    st.markdown('---')
-    st.markdown("<h1 style='text-align: center;'>CRYPTO</h1>", unsafe_allow_html=True)
-
-    # Process and display crypto portfolio
-    crypto_retrieved_data = fetch_crypto_data(db, st.session_state.user['id'])
-
-    if crypto_retrieved_data:
-        with st.spinner('Loading current holdings'):
-            # Prepare symbols for batch fetching
-            crypto_symbols = [symbol for symbol, _, _ in crypto_retrieved_data]
-            crypto_prices = fetch_crypto_prices(crypto_symbols)
-            
-            crypto_data = []
-            for symbol, crypto_amount, avg_price in crypto_retrieved_data:
-                if symbol in crypto_prices:
-                    current_price = crypto_prices[symbol]
-                    position_value = current_price * crypto_amount
-                    profit_loss = (current_price - avg_price) * crypto_amount
-                    profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
-
-                    crypto_data.append({
-                        'Symbol': symbol,
-                        'Crypto Amount': f"{crypto_amount:,.2f}",
-                        'Avg Price': f'${avg_price:,.2f}',
-                        'Current Price': f'${current_price:,.2f}',
-                        'Value': f'${position_value:,.2f}',
-                        'raw_profit_loss': profit_loss,
-                        'raw_profit_loss_pct': profit_loss_pct,
-                        'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
-                    })
-            
-            if crypto_data:
-                create_asset_cards(crypto_data)
-            else:
-                st.info('Your portfolio is empty. Start trading to build your portfolio!')
 
 def create_asset_cards(data):
     # CSS styles for the cards
@@ -444,3 +297,153 @@ def create_asset_cards(data):
     
     # Close grid container
     st.markdown('</div>', unsafe_allow_html=True)
+
+# main portfolio page function
+def portfolio_page():
+    st.title('Portfolio Overview')
+    # initializing/connecting the database
+    db = get_database()
+    
+    # Time period selector
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        time_periods = {
+            '3 Days': '3d',
+            '5 Days': '5d',
+            '1 Month': '1m',
+            '6 Months': '6m',
+            '1 Year': '1y'
+        }
+        selected_period = st.selectbox(
+            "Time Period",
+            options=list(time_periods.keys()),
+            index=4  # Default to 1 Year
+        )
+
+    period_code = time_periods[selected_period]
+    hist_portfolio = fetch_portfolio_history(
+        db, 
+        st.session_state.user['id'], 
+        period_code
+    )
+    
+    if not hist_portfolio.empty:
+        # Format timestamps based on period
+        hist_portfolio = format_timestamp(hist_portfolio, period_code)
+        
+        # Calculate period-specific metrics
+        period_metrics = calculate_period_metrics(hist_portfolio, period_code)
+        
+        st.title("Portfolio Performance")
+
+        # Configuring the chart based on time period
+        fig = create_portfolio_chart(hist_portfolio, period_code)
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Adding summary metrics
+        latest = hist_portfolio.iloc[-1]
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                label="Total Invested",
+                value=f"${latest['invested']:.2f}",
+            )
+        
+        with col2:
+            st.metric(
+                label="Current Value",
+                value=f"${latest['market_value']:.2f}",
+            )
+        
+        with col3:
+            profit_loss = latest['profit_loss']
+            st.metric(
+                label="Total Profit/Loss",
+                value=f"${profit_loss:.2f}",
+                delta=f"{(profit_loss/latest['invested']*100 if latest['invested'] != 0 else 0):.2f}%"
+            )
+        
+        with col4:
+            st.metric(
+                label=f"{selected_period} Change",
+                value=f"${period_metrics['period_change']:.2f}",
+                delta=f"{period_metrics['period_change_pct']:.2f}%"
+            )
+    
+    # Get portfolio data from database.
+    portfolio = fetch_portfolio_data(db, st.session_state.user['id'])
+    
+    st.markdown('---')
+
+    # Process and display stock portfolio if user has a portfolio (meaning that it's not a new user)
+    if portfolio:
+        st.markdown("<h1 style='text-align: center;'>STOCKS</h1>", unsafe_allow_html=True)
+        
+        with st.spinner('Loading current holdings'):
+            # Prepare symbols for batch fetching
+            stock_symbols = [symbol for symbol, _, _ in portfolio]
+            stock_prices = fetch_current_prices(stock_symbols)
+            
+            portfolio_data = []
+            # Here we are calling the get stock data function and the function returns historic data in form of a dataframe
+            for symbol, shares, avg_price in portfolio:
+                if symbol in stock_prices:
+                    current_price = stock_prices[symbol]
+                    position_value = shares * current_price
+                    profit_loss = (current_price - avg_price) * shares
+                    profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
+                    
+                    portfolio_data.append({
+                        'Symbol': symbol,
+                        'Shares': f"{shares:,.2f}",
+                        'Avg Price': f'${avg_price:,.2f}',
+                        'Current Price': f'${current_price:,.2f}',
+                        'Value': f'${position_value:,.2f}',
+                        'raw_profit_loss': profit_loss,
+                        'raw_profit_loss_pct': profit_loss_pct,
+                        'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
+                    })
+            
+            if portfolio_data:
+                # creating cards for the customer's stock/crypto data.
+                create_asset_cards(portfolio_data)
+    else:
+        st.info('Your portfolio is empty. Start trading to build your portfolio!')
+
+    st.markdown('---')
+    st.markdown("<h1 style='text-align: center;'>CRYPTO</h1>", unsafe_allow_html=True)
+
+    # Process and display crypto portfolio
+    crypto_retrieved_data = fetch_crypto_data(db, st.session_state.user['id'])
+
+    if crypto_retrieved_data:
+        with st.spinner('Loading current holdings'):
+            # Prepare symbols for batch fetching
+            crypto_symbols = [symbol for symbol, _, _ in crypto_retrieved_data]
+            crypto_prices = fetch_crypto_prices(crypto_symbols)
+
+            # fetching and storing all the prices for 50 crypto's
+            crypto_data = []
+            for symbol, crypto_amount, avg_price in crypto_retrieved_data:
+                if symbol in crypto_prices:
+                    current_price = crypto_prices[symbol]
+                    position_value = current_price * crypto_amount
+                    profit_loss = (current_price - avg_price) * crypto_amount
+                    profit_loss_pct = ((current_price - avg_price) / avg_price) * 100
+
+                    crypto_data.append({
+                        'Symbol': symbol,
+                        'Crypto Amount': f"{crypto_amount:,.2f}",
+                        'Avg Price': f'${avg_price:,.2f}',
+                        'Current Price': f'${current_price:,.2f}',
+                        'Value': f'${position_value:,.2f}',
+                        'raw_profit_loss': profit_loss,
+                        'raw_profit_loss_pct': profit_loss_pct,
+                        'Profit/Loss': f'${profit_loss:,.2f} ({profit_loss_pct:.2f}%)'
+                    })
+            
+            if crypto_data:
+                create_asset_cards(crypto_data)
+            else:
+                st.info('Your portfolio is empty. Start trading to build your portfolio!')
