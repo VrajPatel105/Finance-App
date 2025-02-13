@@ -107,50 +107,56 @@ def load_crypto_details(user_input):
                             background: #1F1F1F;
                             border: 1px solid rgba(168, 85, 247, 0.2);
                             border-radius: 10px;
-                            padding: 0.8rem;
+                            padding: 1.2rem;
                             box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
                         '>
                             <h2 style='
-                                font-size: 1.5rem;
+                                font-size: 1.6rem;
                                 font-weight: 700;
-                                margin-bottom: 0.8rem;
+                                margin: 0 0 0.9rem 0;
                                 background: linear-gradient(to right, #E2E8F0, #A855F7);
                                 -webkit-background-clip: text;
                                 -webkit-text-fill-color: transparent;
-                            '>{coin_data['name']} 
+                                line-height: 1;
+                            '>{coin_data['name']}
                                 <span style='
-                                    font-size: 1rem;
+                                    font-size: 1.1rem;
                                     color: #A855F7;
                                     background: none;
+                                    padding-bottom: 20px;
                                     -webkit-text-fill-color: #A855F7;
                                 '>({coin_data['symbol']})</span>
                             </h2>
                             
                             <h3 style='
-                                font-size: 1.8rem;
-                                font-weight: 800;
-                                margin-bottom: 0.8rem;
+                                font-size: 2rem;
+                                font-weight: 400;
+                                margin: 0.3rem 0;
                                 color: #E2E8F0;
-                            '>${price_data['price']:,.2f} 
+                                line-height: 1;
+                            '>${price_data['price']:,.2f}
                                 <span style='
-                                    font-size: 0.9rem;
+                                    font-size: 1rem;
                                     color: #94A3B8;
                                 '>USD</span>
                             </h3>
                             
                             <p style='
-                                font-size: 1rem;
+                                font-size: 1.1rem;
                                 font-weight: 500;
                                 color: {"#4ADE80" if change_24h > 0 else "#FB7185"};
                                 margin: 0;
-                            '>{change_24h:+.2f}% 
+                                padding-top: 12px;
+
+                                line-height: 1;
+                            '>{change_24h:+.2f}%
                                 <span style='
-                                    font-size: 0.8rem;
+                                    font-size: 0.85rem;
                                     color: #94A3B8;
                                 '>(24h)</span>
                             </p>
                         </div>
-                    """, height=180)
+                    """, height=200)
                 # calling the chart function.
                 create_crypto_chart(user_input)
 
