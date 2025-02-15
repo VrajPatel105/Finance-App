@@ -131,6 +131,14 @@ class Database:
             (user_id,)
         )
         return cursor.fetchall()
+    
+    # to get current email, since email is not stored in user session state.
+    def get_current_email(self, user_id):
+        cursor = self.conn.execute(
+            'SELECT email FROM users WHERE user_id=?',
+            (user_id,)
+        )
+        return cursor.fetchone()
 
     # Function to update the portfolio. When a user buys or sells a stock, update_portfolio function is called to change the user's portfolio.
     def update_portfolio(self, user_id, symbol, shares, price, is_buy):

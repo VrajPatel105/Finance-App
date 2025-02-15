@@ -93,7 +93,7 @@ def create_portfolio_chart(hist_portfolio, period_code):
         )
     )
 
-    # layout with purple theme.
+    # Layout with purple theme
     fig.update_layout(
         plot_bgcolor='#1a1f2c',  
         paper_bgcolor='#1a1f2c',
@@ -105,7 +105,7 @@ def create_portfolio_chart(hist_portfolio, period_code):
             gridwidth=1,
             gridcolor='rgba(99, 108, 138, 0.2)',
             zeroline=False,
-            tickformat='%b %d, %Y' if period_code in ['3d', '5d', '1m'] else '%b %Y',
+            tickformat='%b %d, %Y' if period_code in ['1d', '3d', '5d', '1m'] else '%b %Y',
             tickfont=dict(color='#a0aec0'),
             tickmode='auto'
         ),
@@ -124,11 +124,12 @@ def create_portfolio_chart(hist_portfolio, period_code):
         )
     )
 
-    # Add range selector with dark theme
+    # Update range selector with 1D option and dark theme
     fig.update_xaxes(
-        rangeslider_visible=False,
+        rangeslider_visible=False,  # This removes the range slider below the graph
         rangeselector=dict(
             buttons=list([
+                dict(count=1, label="1D", step="day", stepmode="backward"),
                 dict(count=3, label="3D", step="day", stepmode="backward"),
                 dict(count=5, label="5D", step="day", stepmode="backward"),
                 dict(count=1, label="1M", step="month", stepmode="backward"),
@@ -139,7 +140,10 @@ def create_portfolio_chart(hist_portfolio, period_code):
             font=dict(color="#e2e8f0"),
             bgcolor="#2a2f3c",
             activecolor="#805ad5",
-            bordercolor="#2d3748"
+            bordercolor="#2d3748",
+            y=0.99,  # This moves the buttons inside the graph
+            x=0.01,  # This aligns the buttons to the left
+            yanchor="top"  # This anchors the buttons to the top
         )
     )
 
@@ -157,6 +161,7 @@ def create_portfolio_chart(hist_portfolio, period_code):
     )
 
     return fig
+
 
 def create_asset_cards(data):
     # CSS styles for the cards
@@ -301,43 +306,24 @@ def create_asset_cards(data):
 # main portfolio page function
 def portfolio_page():
     st.title('Portfolio Overview')
-    # initializing/connecting the database
     db = get_database()
     
-    # Time period selector
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        time_periods = {
-            '3 Days': '3d',
-            '5 Days': '5d',
-            '1 Month': '1m',
-            '6 Months': '6m',
-            '1 Year': '1y'
-        }
-        selected_period = st.selectbox(
-            "Time Period",
-            options=list(time_periods.keys()),
-            index=4  # Default to 1 Year
-        )
-
-    period_code = time_periods[selected_period]
+    # Get portfolio history with default 1-year period
     hist_portfolio = fetch_portfolio_history(
         db, 
-        st.session_state.user['id'], 
-        period_code
+        st.session_state.user['id'],
+        '1d' 
     )
     
     if not hist_portfolio.empty:
-        # Format timestamps based on period
-        hist_portfolio = format_timestamp(hist_portfolio, period_code)
+        # Format timestamps
+        hist_portfolio = format_timestamp(hist_portfolio, '1y')
         
         # Calculate period-specific metrics
-        period_metrics = calculate_period_metrics(hist_portfolio, period_code)
-        
-        st.title("Portfolio Performance")
+        period_metrics = calculate_period_metrics(hist_portfolio, '1y')
 
-        # Configuring the chart based on time period
-        fig = create_portfolio_chart(hist_portfolio, period_code)
+        # Create chart with built-in time period selector
+        fig = create_portfolio_chart(hist_portfolio, '1y')
         st.plotly_chart(fig, use_container_width=True)
         
         # Adding summary metrics
@@ -366,11 +352,11 @@ def portfolio_page():
         
         with col4:
             st.metric(
-                label=f"{selected_period} Change",
+                label="Period Change",  # Changed to generic "Period Change"
                 value=f"${period_metrics['period_change']:.2f}",
                 delta=f"{period_metrics['period_change_pct']:.2f}%"
             )
-    
+
     # Get portfolio data from database.
     portfolio = fetch_portfolio_data(db, st.session_state.user['id'])
     

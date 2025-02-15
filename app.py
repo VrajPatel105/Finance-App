@@ -16,6 +16,7 @@ from views.crypto import load_crypto
 from views.ai_assistant import Assistant
 from views.news import load_news
 from views.music import create_floating_music_player
+from views.account import account_page
 
 # css for user info
 st.markdown("""
@@ -197,8 +198,13 @@ def create_sidebar():
             save_session_state()
             st.rerun()
 
-        if st.button('News', key='news_button'):
+        if st.button('📰 News', key='news_button'):
             st.session_state.current_page = 'news'
+            save_session_state()
+            st.rerun()
+
+        if st.button('👤 Account', key='account_button'):
+            st.session_state.current_page = 'account'
             save_session_state()
             st.rerun()
                         
@@ -276,6 +282,8 @@ def main():
             ai.run()
         elif st.session_state.current_page == 'news':
             load_news()
+        elif st.session_state.current_page == 'account':
+            account_page()
         else:
             trading_page()
 
