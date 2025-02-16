@@ -66,9 +66,54 @@ class Database:
             FOREIGN KEY (user_id) REFERENCES users (id)
         )''')
 
-        
+        self.conn.execute('''
+        CREATE TABLE IF NOT EXISTS location_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            city TEXT,
+            region TEXT,
+            country TEXT,
+            timezone TEXT,
+            device TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )''')
+
         self.conn.commit()  # commit -> establishes connection
 
+
+# Add these methods to Database class
+    def log_location(self, user_id, location_data):
+        """Log user's location with timestamp"""
+        try:
+            self.conn.execute('''
+                INSERT INTO location_history 
+                (user_id, city, region, country, timezone, device) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (
+                user_id,
+                location_data['city'],
+                location_data['region'],
+                location_data['country'],
+                location_data['timezone'],
+                location_data.get('device', 'Unknown')
+            ))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error logging location: {e}")
+            return False
+
+    def get_location_history(self, user_id, limit=5):
+        """Get user's recent location history"""
+        cursor = self.conn.execute('''
+            SELECT city, region, country, timezone, device, timestamp
+            FROM location_history
+            WHERE user_id = ?
+            ORDER BY timestamp DESC
+            LIMIT ?
+        ''', (user_id, limit))
+        return cursor.fetchall()
     # Function for adding a new user into the database
     def add_user(self, name, email, password):
         try:
@@ -142,16 +187,27 @@ class Database:
     
 
     def change_email(self, user_id, new_email):
-        try:
             self.conn.execute(
                 'UPDATE users SET email = ? WHERE id = ?',
                 (new_email, user_id)
             )
-            self.conn.commit()  # Don't forget to commit the changes!
-            return True
-        except sqlite3.Error as e:
-            print(f"Error changing email: {e}")
-            return False
+            self.conn.commit()
+        
+    def change_password(self, user_id, new_password):
+            self.conn.execute(
+                'UPDATE users SET password = ? WHERE id = ?',
+                (new_password, user_id)
+            )
+            self.conn.commit()
+            
+
+    def get_password(self, user_id):
+        cursor = self.conn.execute(
+            'SELECT password FROM users WHERE id = ?',
+            (user_id,)  # Need comma to make it a tuple!
+        )
+        result = cursor.fetchone()
+        return result[0] if result else None  # Return actual password string
 
 
     # Function to update the portfolio. When a user buys or sells a stock, update_portfolio function is called to change the user's portfolio.
