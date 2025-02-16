@@ -65,8 +65,6 @@ def account_page():
         
         # Get current user info
         current_name = st.session_state.user.get('name', '')
-        email = db.get_current_email()
-        current_email = email[0]
         current_email = st.session_state.user.get('email', '')
         
         # Profile form
@@ -87,7 +85,10 @@ def account_page():
                 )
             
             if st.form_submit_button("Update Profile"):
-                # Add database update logic here
+                
+                user_id = st.session_state.user['id']
+                db.change_email(user_id, new_email)
+
                 st.success("Profile updated successfully!")
         
         st.markdown('</div>', unsafe_allow_html=True)

@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 import plotly.graph_objects as go
 
 # Cache portfolio data fetching
-@st.cache_data(ttl="30s")
+@st.cache_data(ttl="10s")
 def fetch_portfolio_data(_db, user_id):
     return _db.get_portfolio(user_id)
 
-@st.cache_data(ttl="5m")
+@st.cache_data(ttl="10s")
 def fetch_crypto_data(_db, user_id):
     return _db.get_crypto_data(user_id)
 

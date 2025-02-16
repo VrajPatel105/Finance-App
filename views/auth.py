@@ -372,10 +372,10 @@ def login_page(db):
         # Here we are using SHA256 encoder, meaning that when user register's the password entered is stored in hash format and sha256 hash cannot be decocde at all.
         # So to verify the user, we try to generate a new hash from the password which user entered when "logging in" and we try to match the temporary generated hash with the original hash stored in the database.
         if submitted:
-            user = db.verify_user(email, password)
-            if user:
+            user_details = db.verify_user(email, password)
+            if user_details:
                 st.session_state.logged_in = True
-                st.session_state.user = user
+                st.session_state.user = user_details
                 st.session_state.current_page = 'trading'
                 st.rerun()
             else:

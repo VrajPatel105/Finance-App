@@ -98,7 +98,7 @@ class Database:
     def verify_user(self, email, password):
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         returned_id = self.conn.execute(
-            'SELECT id, name, balance FROM users WHERE email=? AND password=?',
+            'SELECT id, name, balance, email FROM users WHERE email=? AND password=?',
             (email, hashed_password)
         )
 
@@ -113,7 +113,7 @@ class Database:
         # Returns a list of tuples, with each tuple representing a row
 
         if result:
-            return {'id': result[0], 'name': result[1], 'balance': result[2]}
+            return {'id': result[0], 'name': result[1], 'balance': result[2], 'email': result[3]}
         else:
             return None
 
@@ -135,10 +135,24 @@ class Database:
     # to get current email, since email is not stored in user session state.
     def get_current_email(self, user_id):
         cursor = self.conn.execute(
-            'SELECT email FROM users WHERE user_id=?',
+            'SELECT email FROM users WHERE id=?',
             (user_id,)
         )
         return cursor.fetchone()
+    
+
+    def change_email(self, user_id, new_email):
+        try:
+            self.conn.execute(
+                'UPDATE users SET email = ? WHERE id = ?',
+                (new_email, user_id)
+            )
+            self.conn.commit()  # Don't forget to commit the changes!
+            return True
+        except sqlite3.Error as e:
+            print(f"Error changing email: {e}")
+            return False
+
 
     # Function to update the portfolio. When a user buys or sells a stock, update_portfolio function is called to change the user's portfolio.
     def update_portfolio(self, user_id, symbol, shares, price, is_buy):
