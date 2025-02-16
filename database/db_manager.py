@@ -239,6 +239,7 @@ class Database:
                     'INSERT INTO portfolio (user_id, symbol, shares, avg_price) VALUES (?, ?, ?, ?)',
                     (user_id, symbol, shares, price)
                 )
+            self.conn.commit()
 
         # If the order is for selling
         else:
@@ -257,6 +258,7 @@ class Database:
                         'DELETE FROM portfolio WHERE user_id = ? AND symbol=?',
                         (user_id, symbol)
                     )
+                self.conn.commit()
             else:
                 # Returning false if the stock is not existing in the database. Since if there's no stock bought, it cannot be sold in the first place
                 return False
@@ -269,6 +271,7 @@ class Database:
 
         # updating the user's balance
         transaction_value = shares * price
+        # Update user's balance in the database
         self.conn.execute(
             'UPDATE users SET balance = balance + ? WHERE id=?',
             (-transaction_value if is_buy else transaction_value, user_id)
@@ -310,6 +313,7 @@ class Database:
                     'INSERT INTO crypto_portfolio (user_id, symbol, crypto_amount, avg_price) VALUES (?, ?, ?, ?)',
                     (user_id, symbol, crypto_amount, current_price)
                 )
+            self.conn.commit()
         else:
             if existing and existing[0] >= crypto_amount:
                 new_amount = existing[0] - crypto_amount
@@ -323,6 +327,7 @@ class Database:
                         'DELETE FROM crypto_portfolio WHERE user_id = ? AND symbol=?',
                         (user_id, symbol)
                     )
+                self.conn.commit()
             else:
                 return False
                 

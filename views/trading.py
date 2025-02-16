@@ -14,7 +14,7 @@ import yfinance as yf # yfinance to get the latest ticker information
 from streamlit.components.v1 import html
 
 # Caching the data for the next 5 minutes.
-@st.cache_data(ttl="5m")
+@st.cache_data(ttl="1m")
 def fetch_multiple_stocks_data(symbols):
     """
     Fetch data for multiple stocks at once with caching.
