@@ -3,9 +3,6 @@ streamlit==1.31.0
 pandas==2.2.0
 numpy==1.26.3
 
-# Database
-sqlite3
-
 # API Integrations
 yfinance==0.2.35
 requests==2.31.0
@@ -17,13 +14,9 @@ streamlit-lottie==0.0.5
 
 # Utilities
 python-dateutil==2.8.2
-hashlib
 
 # UI Components
-streamlit-components-v1==1.0.0
 Pillow==10.2.0  # For PIL/Image processing
 
 # Optional but recommended
 python-dotenv==1.0.1  # For environment variable management
-pytest==8.0.0  # For testing
-black==24.1.1  # For code formatting
