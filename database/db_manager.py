@@ -187,7 +187,7 @@ class Database:
             return None
 
     # Function to get the portfolio for the user . Here we are fetching the data from the database by searching it based on the user id.
-    @st.cache_resource
+
     def get_portfolio(self, user_id):
         cursor = self.conn.execute(
             'SELECT symbol, shares, avg_price FROM portfolio WHERE user_id=?',
@@ -195,7 +195,7 @@ class Database:
         )
         return cursor.fetchall()
     
-    @st.cache_resource
+
     def get_crypto_data(self,user_id):
         cursor = self.conn.execute(
             'SELECT symbol, crypto_amount, avg_price FROM crypto_portfolio WHERE user_id = ?',
