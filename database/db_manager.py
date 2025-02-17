@@ -1,4 +1,6 @@
 import sqlite3
+import streamlit as st
+import json
 import hashlib
 
 class Database:
@@ -114,6 +116,28 @@ class Database:
             LIMIT ?
         ''', (user_id, limit))
         return cursor.fetchall()
+    
+    
+    def verify_and_sync_balance(self, user_id):
+        """Verify and sync the database balance with session state"""
+        cursor = self.conn.execute('SELECT balance FROM users WHERE id=?', (user_id,))
+        db_balance = cursor.fetchone()[0]
+        
+        # If session state balance doesn't match database, update it
+        if st.session_state.user['balance'] != db_balance:
+            st.session_state.user['balance'] = db_balance
+            
+            # Update query parameters
+            state_data = {
+                'logged_in': st.session_state.logged_in,
+                'current_page': st.session_state.current_page,
+                'user': st.session_state.user
+            }
+            st.query_params['session_state'] = json.dumps(state_data)
+        
+        return db_balance
+
+
     # Function for adding a new user into the database
     def add_user(self, name, email, password):
         try:
@@ -223,63 +247,69 @@ class Database:
         # if statement will be executed meaning that the stock values will be changed in the user's portfolio 
         # But if it's a complete new stock, then it will not be contained by the existing list, so the else condition will be called and a new stock will be added into the user's portfolio
         
-        if is_buy:
-            if existing:
-                new_shares = existing[0] + shares  # Total new share count
-                old_total_value = existing[0] * existing[1]  # Old shares * Old avg price
-                new_purchase_value = shares * price  # New shares * New price
-                new_avg_price = (old_total_value + new_purchase_value) / new_shares
-                
-                self.conn.execute(
-                    'UPDATE portfolio SET shares=?, avg_price=? WHERE user_id=? AND symbol=?',
-                    (new_shares, new_avg_price, user_id, symbol)
-                )
-            else:
-                self.conn.execute(
-                    'INSERT INTO portfolio (user_id, symbol, shares, avg_price) VALUES (?, ?, ?, ?)',
-                    (user_id, symbol, shares, price)
-                )
-            self.conn.commit()
-
-        # If the order is for selling
-        else:
-            # If it's an existing stock already inside our database and the shares bought are less than the shares that the user wants to sell
-            if existing and existing[0] >= shares:
-                new_shares = existing[0] - shares
-                # checking if the new shares are not less than 0 and if it is than delete entire stock row as the stock is no more inside the user's portfolio
-                if new_shares > 0:
+        # Calculate transaction value
+        transaction_value = shares * price
+        
+        try:
+            if is_buy:
+                if existing:
+                    new_shares = existing[0] + shares  # Total new share count
+                    old_total_value = existing[0] * existing[1]  # Old shares * Old avg price
+                    new_purchase_value = shares * price  # New shares * New price
+                    new_avg_price = (old_total_value + new_purchase_value) / new_shares
+                    
                     self.conn.execute(
-                        'UPDATE portfolio SET shares=? WHERE user_id=? AND symbol=?',
-                        (new_shares, user_id, symbol)
+                        'UPDATE portfolio SET shares=?, avg_price=? WHERE user_id=? AND symbol=?',
+                        (new_shares, new_avg_price, user_id, symbol)
                     )
                 else:
-                    # Deleting the entire row for that particular user's particular stock
                     self.conn.execute(
-                        'DELETE FROM portfolio WHERE user_id = ? AND symbol=?',
-                        (user_id, symbol)
+                        'INSERT INTO portfolio (user_id, symbol, shares, avg_price) VALUES (?, ?, ?, ?)',
+                        (user_id, symbol, shares, price)
                     )
-                self.conn.commit()
+
+            # If the order is for selling
             else:
-                # Returning false if the stock is not existing in the database. Since if there's no stock bought, it cannot be sold in the first place
-                return False
+                # If it's an existing stock already inside our database and the shares bought are less than the shares that the user wants to sell
+                if existing and existing[0] >= shares:
+                    new_shares = existing[0] - shares
+                    # checking if the new shares are not less than 0 and if it is than delete entire stock row as the stock is no more inside the user's portfolio
+                    if new_shares > 0:
+                        self.conn.execute(
+                            'UPDATE portfolio SET shares=? WHERE user_id=? AND symbol=?',
+                            (new_shares, user_id, symbol)
+                        )
+                    else:
+                        # Deleting the entire row for that particular user's particular stock
+                        self.conn.execute(
+                            'DELETE FROM portfolio WHERE user_id = ? AND symbol=?',
+                            (user_id, symbol)
+                        )
+                else:
+                    # Returning false if the stock is not existing in the database. Since if there's no stock bought, it cannot be sold in the first place
+                    return False
 
-        # recording the transaction
-        self.conn.execute(
-            'INSERT INTO transactions (user_id, symbol, transaction_type, shares, price) VALUES (?, ?, ?, ?, ?)',
-            (user_id, symbol, 'BUY' if is_buy else 'SELL', shares, price)
-        )
+            # Update user's balance
+            self.conn.execute(
+                'UPDATE users SET balance = balance + ? WHERE id=?',
+                (-transaction_value if is_buy else transaction_value, user_id)
+            )
 
-        # updating the user's balance
-        transaction_value = shares * price
-        # Update user's balance in the database
-        self.conn.execute(
-            'UPDATE users SET balance = balance + ? WHERE id=?',
-            (-transaction_value if is_buy else transaction_value, user_id)
-        )
+            # Record the transaction
+            self.conn.execute(
+                'INSERT INTO transactions (user_id, symbol, transaction_type, shares, price) VALUES (?, ?, ?, ?, ?)',
+                (user_id, symbol, 'BUY' if is_buy else 'SELL', shares, price)
+            )
 
-        self.conn.commit()
-        return True
-    
+            self.conn.commit()
+            
+            # Get and return new balance
+            cursor = self.conn.execute('SELECT balance FROM users WHERE id=?', (user_id,))
+            return cursor.fetchone()[0]
+            
+        except Exception as e:
+            self.conn.rollback()
+            return False
 
 
     def update_crypto_portfolio(self, user_id, symbol, crypto_amount, current_price, is_buy):
@@ -287,8 +317,10 @@ class Database:
             'SELECT crypto_amount, avg_price FROM crypto_portfolio WHERE user_id = ? AND symbol=?',
             (user_id, symbol)
         )
-        
         existing = cursor.fetchone()
+
+        # Calculate transaction value
+        transaction_value = crypto_amount * current_price
 
         if is_buy:
             # Here we have to update the average price.
@@ -300,9 +332,10 @@ class Database:
             # new_purchase_value = shares * price  # New shares * New price
             # new_avg_price = (old_total_value + new_purchase_value) / new_shares
             if existing:
-
                 new_amount = existing[0] + crypto_amount
-                new_avg_price = ((existing[1] + existing[0]) + (current_price * crypto_amount)) / new_amount # The mistake was that I was multiplying the existing[0] * existing[1]. But it should be addition and not product 
+                old_total_value = existing[0] * existing[1]  # Old amount * Old avg price
+                new_purchase_value = crypto_amount * current_price  # New amount * New price
+                new_avg_price = (old_total_value + new_purchase_value) / new_amount
                 
                 self.conn.execute(
                     'UPDATE crypto_portfolio SET crypto_amount=?, avg_price=? WHERE user_id = ? AND symbol = ?',
@@ -313,7 +346,6 @@ class Database:
                     'INSERT INTO crypto_portfolio (user_id, symbol, crypto_amount, avg_price) VALUES (?, ?, ?, ?)',
                     (user_id, symbol, crypto_amount, current_price)
                 )
-            self.conn.commit()
         else:
             if existing and existing[0] >= crypto_amount:
                 new_amount = existing[0] - crypto_amount
@@ -327,9 +359,23 @@ class Database:
                         'DELETE FROM crypto_portfolio WHERE user_id = ? AND symbol=?',
                         (user_id, symbol)
                     )
-                self.conn.commit()
             else:
                 return False
-                
+
+        # Update user's balance
+        self.conn.execute(
+            'UPDATE users SET balance = balance + ? WHERE id=?',
+            (-transaction_value if is_buy else transaction_value, user_id)
+        )
+
+        # Record the transaction
+        self.conn.execute(
+            'INSERT INTO transactions (user_id, symbol, transaction_type, shares, price) VALUES (?, ?, ?, ?, ?)',
+            (user_id, symbol, 'BUY' if is_buy else 'SELL', crypto_amount, current_price)
+        )
+
         self.conn.commit()
-        return True
+        
+        # Get and return new balance
+        cursor = self.conn.execute('SELECT balance FROM users WHERE id=?', (user_id,))
+        return cursor.fetchone()[0]

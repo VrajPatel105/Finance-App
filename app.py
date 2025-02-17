@@ -210,7 +210,6 @@ def create_sidebar():
                         
         st.sidebar.button('🚪 Logout', on_click=logout)
 
-# if the user is logged in, then we are saving the session state.
 def save_session_state():
     if st.session_state.logged_in:
         state_data = {
@@ -219,8 +218,6 @@ def save_session_state():
             'user': st.session_state.user
         }
         st.query_params['session_state'] = json.dumps(state_data)
-
-
 
 def init_session_state():
     # Trying to load saved state from query params first
@@ -245,14 +242,21 @@ def init_session_state():
             st.session_state.current_page = 'welcome'
         if 'user' not in st.session_state:
             st.session_state.user = None
-            # this is for saving the chat with finch assistant for the particular user. (It will keep history of the chat for some time.)
+            
+    # Initialize AI chat history if not present
     if 'ai_chat_history' not in st.session_state:
         st.session_state.ai_chat_history = []
 
 def main():
     init_session_state()
        # Calling the database instance
+
+       
     db = get_database()
+
+    if st.session_state.logged_in and 'user' in st.session_state:
+    # Verify balance is in sync at the start of each page load
+        db.verify_and_sync_balance(st.session_state.user['id'])
 
     # Check for Enter key press to prevent page change
     for key in st.session_state.keys():

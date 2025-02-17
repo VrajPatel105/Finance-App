@@ -7,6 +7,8 @@ from streamlit.components.v1 import html
 import time
 from streamlit_lottie import st_lottie
 from utils.stock_utils import create_crypto_chart
+import json
+from utils.formatters import format_number
 
 def load_crypto_details(user_input):
    
@@ -161,81 +163,115 @@ def load_crypto_details(user_input):
                 create_crypto_chart(user_input)
 
 
-                    # Crypto buy / sell form
                 col1, col2 = st.columns(2)
 
                 with col1:
-                        with st.form(key='buy_crypto', enter_to_submit=True):
-                            st.subheader(f'Buy {user_input}')
-                            
-                            crypto_amount = st.number_input('Amount', min_value=0.1, step=0.1)
-                            if 'price' in price_data:
-                                crypto_cost = price_data['price'] * crypto_amount
-                                st.write(f'Total Cost: ${crypto_cost:.2f}')
-                            else:
-                                st.error('Price data is unavailable.')
-                                crypto_cost = 0
+                    with st.form(key='buy_crypto', enter_to_submit=True):
+                        st.subheader(f'Buy {user_input}')
+                        
+                        crypto_amount = st.number_input('Amount', min_value=0.1, step=0.1)
+                        if 'price' in price_data:
+                            crypto_cost = price_data['price'] * crypto_amount
+                            st.write(f'Total Cost: ${crypto_cost:.2f}')
+                        else:
+                            st.error('Price data is unavailable.')
+                            crypto_cost = 0
 
-                            crypto_buy_submit_btn = st.form_submit_button('Buy')
+                        crypto_buy_submit_btn = st.form_submit_button('Buy')
 
-                            if crypto_buy_submit_btn:
-                                if 'user' in st.session_state and 'balance' in st.session_state.user:
-                                    if crypto_cost > st.session_state.user['balance']:
-                                        st.error('Insufficient funds!')
-                                    else:
-                                        db = get_database()
-                                        # Assuming a method to handle transaction
-                                        if db.update_crypto_portfolio(st.session_state.user['id'],user_input, crypto_amount, price_data['price'], True):
-                                            st.success('Purchase successful!')
-                                            st.session_state.user['balance'] -= crypto_cost  # substracting the amount from the user's total balance
-                                            load_transaction_complete_lottie(True)
-                                            st.rerun()
+                        if crypto_buy_submit_btn:
+                            if 'user' in st.session_state and 'balance' in st.session_state.user:
+                                if crypto_cost > st.session_state.user['balance']:
+                                    st.error('Insufficient funds!')
                                 else:
-                                    st.error('User balance information unavailable.')
-
-                with col2:
-                        with st.form(key='sell_crypto', enter_to_submit=True):
-                            st.subheader(f'Sell {user_input}')
-                            
-                            sell_amount = st.number_input('Amount', min_value=0.1, step=0.1, key='sell_amount')
-                            if 'price' in price_data:
-                                sell_value = price_data['price'] * sell_amount
-                                st.write(f'Total Value: ${sell_value:.2f}')
-                            else:
-                                st.error('Price data is unavailable.')
-                                sell_value = 0
-                            
-                            sell_submit_btn = st.form_submit_button('Sell')
-                            
-                            if sell_submit_btn:
-                                if 'user' in st.session_state and 'balance' in st.session_state.user:
                                     db = get_database()
-                                    if db.update_crypto_portfolio(st.session_state.user['id'], user_input, sell_amount, sell_value, False):
-                                        st.success('Sold successfully!')
-                                        st.session_state.user['balance'] += crypto_cost
+                                    new_balance = db.update_crypto_portfolio(st.session_state.user['id'], user_input, crypto_amount, price_data['price'], True)
+                                    if new_balance is not False:
+                                        st.session_state.user['balance'] = new_balance
+                                        st.success('Purchase successful!')
+                                        
+                                        # Update query parameters
+                                        state_data = {
+                                            'logged_in': st.session_state.logged_in,
+                                            'current_page': st.session_state.current_page,
+                                            'user': st.session_state.user
+                                        }
+                                        st.query_params['session_state'] = json.dumps(state_data)
+                                        
                                         load_transaction_complete_lottie(True)
                                         st.rerun()
                                     else:
-                                        st.error('Insufficient crypto balance!')
+                                        st.error('Transaction failed. Please try again.')
+                            else:
+                                st.error('User balance information unavailable.')
+
+                with col2:
+                    with st.form(key='sell_crypto', enter_to_submit=True):
+                        st.subheader(f'Sell {user_input}')
+                        
+                        sell_amount = st.number_input('Amount', min_value=0.1, step=0.1, key='sell_amount')
+                        if 'price' in price_data:
+                            sell_value = price_data['price'] * sell_amount
+                            st.write(f'Total Value: ${sell_value:.2f}')
+                        else:
+                            st.error('Price data is unavailable.')
+                            sell_value = 0
+                        
+                        sell_submit_btn = st.form_submit_button('Sell')
+                        
+                        if sell_submit_btn:
+                            if 'user' in st.session_state and 'balance' in st.session_state.user:
+                                db = get_database()
+                                new_balance = db.update_crypto_portfolio(st.session_state.user['id'], user_input, sell_amount, price_data['price'], False)
+                                if new_balance is not False:
+                                    st.session_state.user['balance'] = new_balance
+                                    st.success('Sold successfully!')
+                                    
+                                    # Update query parameters
+                                    state_data = {
+                                        'logged_in': st.session_state.logged_in,
+                                        'current_page': st.session_state.current_page,
+                                        'user': st.session_state.user
+                                    }
+                                    st.query_params['session_state'] = json.dumps(state_data)
+                                    
+                                    load_transaction_complete_lottie(True)
+                                    st.rerun()
                                 else:
-                                    st.error('User balance information unavailable.')
+                                    st.error('Insufficient crypto balance!')
+                            else:
+                                st.error('User balance information unavailable.')
 
                 # Market Metrics
                 st.subheader("Market Metrics")
-                cols = st.columns(3)
+                col1, col2, col3 = st.columns(3)
                 metrics = {
-                    "Market Cap": price_data['market_cap'],
-                    "24h Volume": price_data['volume_24h'],
-                    "Circulating Supply": coin_data['circulating_supply']
+                    "Market Cap": format_number(float(price_data['market_cap'])),
+                    "24h Volume": format_number(float(price_data['volume_24h'])),
+                    "Circulating Supply": format_number(float(coin_data['circulating_supply']))
                 }
-                
-                for col, (label, value) in zip(cols, metrics.items()):
-                    col.markdown(f"""
-                        <div class="crypto-card">
-                            <p class="metric-label">{label}</p>
-                            <p class="metric-value">${value:,.0f}</p>
-                        </div>
-                    """, unsafe_allow_html=True)
+
+                # Display each metric in its column
+                col1.markdown(f"""
+                    <div class="crypto-card">
+                        <p class="metric-label">Market Cap</p>
+                        <p class="metric-value">{metrics['Market Cap']}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                col2.markdown(f"""
+                    <div class="crypto-card">
+                        <p class="metric-label">24h Volume</p>
+                        <p class="metric-value">{metrics['24h Volume']}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                col3.markdown(f"""
+                    <div class="crypto-card">
+                        <p class="metric-label">Circulating Supply</p>
+                        <p class="metric-value">{metrics['Circulating Supply']}</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
                 # Price Changes
                 st.subheader("Price Changes")

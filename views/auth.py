@@ -241,7 +241,6 @@ def logout():
     
     # Reset page to login
     st.session_state.current_page = 'login'
-    st.rerun()
 
 # function for login page
 def login_page(db):
