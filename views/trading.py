@@ -13,37 +13,32 @@ import time
 import yfinance as yf # yfinance to get the latest ticker information
 from streamlit.components.v1 import html
 
-# Caching the data for the next 5 minutes.
-@st.cache_data(ttl="1m")
+# In stock.py, enhance caching duration and batch requests
+@st.cache_data(ttl="10m")  # Increase cache time from 1m to 10m
 def fetch_multiple_stocks_data(symbols):
-    """
-    Fetch data for multiple stocks at once with caching.
-    This is done to just reduce the amount of api calls. 
-    If we keep on hitting on the api, after sometime, we will get an error.
-    """
-    try:
-        # Download data for all symbols at once
-        tickers = yf.Tickers(" ".join(symbols))
-        stock_data = {} # To store all info for all the tickers at one place.
-        
-        for symbol in symbols:
-            try:
-                info = tickers.tickers[symbol].info
-                stock_data[symbol] = {
-                    'currentPrice': info.get('currentPrice', 0),
-                    'volume': info.get('volume', 0),
-                    'dayLow': info.get('dayLow', 0),
-                    'dayHigh': info.get('dayHigh', 0),
-                    'forwardPE': info.get('forwardPE', 'N/A')
-                }
-            except Exception:
-                stock_data[symbol] = None
-                
-        return stock_data # returning back the stock_data dictionary.
-    except Exception as e:
-        # else raise an error and return empty dictionary.
-        st.error(f"Error fetching stock data: {str(e)}")
-        return {}
+    # Batch API calls into groups of 10 symbols
+    batch_size = 10
+    stock_data = {}
+    
+    for i in range(0, len(symbols), batch_size):
+        batch_symbols = symbols[i:i + batch_size]
+        try:
+            tickers = yf.Tickers(" ".join(batch_symbols))
+            for symbol in batch_symbols:
+                try:
+                    info = tickers.tickers[symbol].info
+                    stock_data[symbol] = {
+                        'currentPrice': info.get('currentPrice', 0),
+                        'volume': info.get('volume', 0),
+                        'dayLow': info.get('dayLow', 0),
+                        'dayHigh': info.get('dayHigh', 0),
+                        'forwardPE': info.get('forwardPE', 'N/A')
+                    }
+                except Exception:
+                    stock_data[symbol] = None
+        except Exception as e:
+            st.error(f"Error fetching batch data: {str(e)}")
+    return stock_data
 
 # function to create stock cards that will display 15 selected stock info.
 def create_stock_cards():
@@ -51,62 +46,47 @@ def create_stock_cards():
     if 'selected_symbol' not in st.session_state:
         st.session_state.selected_symbol = None
 
-    # JavaScript for handling card clicks
+   # JavaScript for handling card clicks
     js_code = """
-    <script>
+        <script>
         function handleCardClick(symbol) {
-            // Find the input element
-            const input = window.parent.document.querySelector('.stTextInput input');
-            if (input) {
-                // Set the value
-                input.value = symbol;
-                
-                // Create and dispatch input event
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                
-                // Focus the input
-                input.focus();
-                
-                // Find the form element that contains the input
-                const form = input.closest('form');
-                if (form) {
-                    // Create a submit event
-                    const submitEvent = new Event('submit', {
-                        bubbles: true,
-                        cancelable: true
-                    });
-                    
-                    // Dispatch the submit event on the form
-                    form.dispatchEvent(submitEvent);
+            const targetFrame = window.parent.document;
+            const inputs = targetFrame.getElementsByTagName('input');
+            let targetInput = null;
+
+            // Find the visible input field
+            for (let inp of inputs) {
+                if (inp.offsetParent !== null && inp.type === 'text') {
+                    targetInput = inp;
+                    break;
                 }
+            }
+
+            if (targetInput) {
+                // Set the input value
+                targetInput.value = symbol;
                 
-                // Create and dispatch an Enter keypress event
-                const keypressEvent = new KeyboardEvent('keypress', {
+                // Create an input event to ensure Streamlit detects the change
+                targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                // Simulate Enter key press to trigger search
+                targetInput.dispatchEvent(new KeyboardEvent('keydown', {
                     key: 'Enter',
                     code: 'Enter',
                     keyCode: 13,
                     which: 13,
                     bubbles: true,
                     cancelable: true
-                });
-                input.dispatchEvent(keypressEvent);
-                
-                // Also dispatch a change event
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // Force Streamlit to update by dispatching a custom event
-                window.parent.document.dispatchEvent(new CustomEvent('streamlit:render'));
-                
-                // Additional fallback - click any 'Run' button that might be present
+                }));
+
+                // Wait a bit before forcing a Streamlit rerender
                 setTimeout(() => {
-                    const runButton = window.parent.document.querySelector('button[kind="primaryFormSubmit"]');
-                    if (runButton) {
-                        runButton.click();
-                    }
-                }, 100);
+                    window.parent.document.dispatchEvent(new Event('streamlit:rerun'));
+                }, 200);
             }
         }
     </script>
+
     """
     # Popular stock tickers with their names
     popular_stocks = {

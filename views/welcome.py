@@ -79,6 +79,51 @@ def create_stat_card(label, value, change):
     '''
 # Main welcome page function.
 def welcome_page():
+
+    st.markdown("""
+        <style>
+        /* Optimize image loading */
+        img {
+            loading: lazy;
+            will-change: transform;  /* Optimize animation performance */
+        }
+        
+        /* Preload gradients */
+        .stApp {
+            background-image: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+            contain: content;  /* Improve paint performance */
+        }
+        
+        /* Optimize animations */
+        @keyframes float {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        /* Use hardware acceleration for animations */
+        .animated-element {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+        /* Use CSS transitions instead of JS for hover effects */
+        .modern-button {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # Basic styles with animations (black-purple theme)
     st.markdown("""
         <style>

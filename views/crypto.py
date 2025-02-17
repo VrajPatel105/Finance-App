@@ -7,6 +7,13 @@ from models.crypto_data import load_crypto_details
 def load_crypto():
     st.title('Cryptocurrencies')
     # getting input from the user
+    st.markdown("""
+        <style>
+        img {
+            loading: lazy;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     user_input = st.text_input('Search a crypto-currency', '').upper()
 
     if user_input:
