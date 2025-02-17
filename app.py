@@ -1,11 +1,18 @@
 import streamlit as st
 import json
 # We are setting the page config here.
+# At the top of app.py
 st.set_page_config(
-       page_title="Finch",
-       page_icon='resources/finch.ico',
-       layout="wide"
-   )
+    page_title="Finch",
+    page_icon='resources/finch.ico',
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
+)
 # importing all the libraries and functions from other classes.
 from database.connection import get_database
 from views.auth import register_page, login_page, logout
@@ -250,7 +257,25 @@ def init_session_state():
 def main():
     init_session_state()
        # Calling the database instance
-
+    st.markdown("""
+    <style>
+    /* Global styles */
+    .stApp {
+        background-color: #0E1117;
+    }
+    
+    /* Ensure text is visible */
+    .stMarkdown {
+        color: #FAFAFA;
+    }
+    
+    /* Enable webkit features globally */
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    </style>
+""", unsafe_allow_html=True)
        
     db = get_database()
 

@@ -40,7 +40,7 @@ def register_page(db):
             margin-bottom: 2.5rem;
         }
         
-        .register-header h1 {
+        .finch-title {
             font-size: 2.5rem;
             font-weight: 700;
             background: linear-gradient(90deg, #a855f7, #d946ef);
@@ -49,13 +49,18 @@ def register_page(db):
             margin-bottom: 0.5rem;
         }
         
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        
         .stTextInput input {
             background: rgba(23, 23, 30, 0.9);
             border: 1px solid rgba(168, 85, 247, 0.2);
             color: #f8fafc;
             border-radius: 12px;
             padding: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             font-size: 1rem;
         }
         
@@ -109,17 +114,6 @@ def register_page(db):
             border-radius: 12px;
         }
         
-        .login-link button {
-            background: transparent !important;
-            border: 1px solid rgba(168, 85, 247, 0.3) !important;
-            color: #a855f7 !important;
-        }
-        
-        .login-link button:hover {
-            background: rgba(168, 85, 247, 0.1) !important;
-            transform: translateY(-2px);
-        }
-        
         .security-features {
             margin-top: 2rem;
             padding: 1.5rem;
@@ -143,17 +137,15 @@ def register_page(db):
         </style>
     """, unsafe_allow_html=True)
 
-    # Main registration container
     st.markdown("""
         <div class="register-container">
             <div class="register-header">
-                <h1>Join Finch</h1>
-                <p style="color: #94a3b8; font-size: 1.1rem;">Begin your trading journey today</p>
+                <div class="finch-title">Join Finch</div>
+                <div class="subtitle">Begin your trading journey today</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-    # Registration form
     with st.form('register_form'):
         name = st.text_input(
             'Full Name',
@@ -189,8 +181,6 @@ def register_page(db):
         elif not all([name, email, password]):
             st.error('📝 Please fill all fields')
         else:
-            # if else is executed, then it means that it's a new user.  
-            # We will call add_user function  from db_manager.py and pass the user's info.
             user_id = db.add_user(name, email, password)
             if user_id:
                 st.success('🎉 Account created successfully!')
@@ -200,7 +190,6 @@ def register_page(db):
             else:
                 st.error('📧 Email already registered')
 
-    # Login link section
     st.markdown("""
         <div class="login-link">
             <p style="color: #94a3b8; margin-bottom: 1rem;">Already a member?</p>
@@ -211,7 +200,6 @@ def register_page(db):
         st.session_state.current_page = 'login'
         st.rerun()
 
-    # Security features section
     st.markdown("""
         <div class="security-features">
             <div class="feature-item">
@@ -276,27 +264,31 @@ def login_page(db):
             animation: glow 3s ease-in-out infinite;
         }
         
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        
-        .login-header h1 {
+        .finch-title {
             font-size: 3rem;
             font-weight: 700;
             background: linear-gradient(90deg, #a855f7, #d946ef);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
+            text-align: center;
         }
         
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        /* Form fields */
         .stTextInput input {
             background: rgba(23, 23, 30, 0.9);
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.3);
             color: #f8fafc;
             border-radius: 12px;
             padding: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             font-size: 1rem;
         }
         
@@ -305,6 +297,7 @@ def login_page(db):
             box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
         }
         
+        /* Submit button */
         .stButton button {
             background: linear-gradient(90deg, #a855f7, #d946ef) !important;
             color: white !important;
@@ -314,8 +307,6 @@ def login_page(db):
             font-weight: 600 !important;
             letter-spacing: 0.5px !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            text-transform: uppercase;
-            font-size: 1rem;
         }
         
         .stButton button:hover {
@@ -332,17 +323,7 @@ def login_page(db):
             font-size: 0.9rem;
         }
         
-        .alt-button button {
-            background: transparent !important;
-            border: 1px solid rgba(168, 85, 247, 0.3) !important;
-            color: #a855f7 !important;
-        }
-        
-        .alt-button button:hover {
-            background: rgba(168, 85, 247, 0.1) !important;
-        }
-        
-        .error {
+        .error-message {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
             color: #ef4444;
@@ -351,14 +332,12 @@ def login_page(db):
             margin: 1rem 0;
         }
         </style>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     st.markdown("""
         <div class="login-container">
-            <div class="login-header">
-                <h1>Finch</h1>
-                <p style="color: #94a3b8; font-size: 1.1rem;">Welcome back, trader</p>
-            </div>
+            <div class="finch-title">Finch</div>
+            <div class="subtitle">Welcome back, trader</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -367,9 +346,6 @@ def login_page(db):
         password = st.text_input('Password', type='password', placeholder='Enter your password')
         submitted = st.form_submit_button('Sign In', use_container_width=True)
 
-        # Calling verify_user function and authenticating if the user has entered the correct password or not.
-        # Here we are using SHA256 encoder, meaning that when user register's the password entered is stored in hash format and sha256 hash cannot be decocde at all.
-        # So to verify the user, we try to generate a new hash from the password which user entered when "logging in" and we try to match the temporary generated hash with the original hash stored in the database.
         if submitted:
             user_details = db.verify_user(email, password)
             if user_details:
@@ -382,13 +358,11 @@ def login_page(db):
     
     st.markdown('<div class="divider">New to Finch?</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="alt-button">', unsafe_allow_html=True)
     if st.button('Create New Account', use_container_width=True):
         st.session_state.current_page = 'register'
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # brief security message
+    # Brief security message
     st.markdown("""
         <div style="
             text-align: center;

@@ -417,6 +417,42 @@ def create_stock_cards():
 
 def trading_page():
     st.title('Trading Dashboard')
+    # In trading.py
+    st.markdown("""
+        <style>
+        /* Trading card styling */
+        .stock-card {
+            background-color: #1E1E1E !important;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 0.7rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-4px);
+            border-color: #a855f7;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
+        }
+        
+        /* Fix button colors */
+        .buy-button, .sell-button {
+            background-color: transparent !important;
+            border: 1px solid;
+        }
+        
+        .buy-button {
+            border-color: #4ADE80 !important;
+            color: #4ADE80 !important;
+        }
+        
+        .sell-button {
+            border-color: #FB7185 !important;
+            color: #FB7185 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     
     # Create the text input for the symbol
     symbol = st.text_input('Enter Stock Symbol (e.g., AAPL, GOOGL)', '').upper()

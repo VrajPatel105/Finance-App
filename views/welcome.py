@@ -79,6 +79,36 @@ def create_stat_card(label, value, change):
     '''
 # Main welcome page function.
 def welcome_page():
+    st.markdown("""
+    <style>
+    /* Global styles that need to be defined first */
+    .stApp {
+        background: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+        background-size: 200% 200%;
+        animation: gradient 15s ease infinite;
+    }
+    
+    /* Override any potential Streamlit interference with our gradient text */
+    .stMarkdown div {
+        background: transparent !important;
+    }
+    
+    /* Ensure gradient text is visible */
+    .gradient-heading {
+        background: linear-gradient(90deg, #a855f7, #d946ef);
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        display: inline-block;
+        font-size: 4rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 1.5rem !important;
+        animation: float 6s ease-in-out infinite;
+        width: 100%;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
     st.markdown("""
         <style>
