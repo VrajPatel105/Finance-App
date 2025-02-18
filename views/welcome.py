@@ -8,47 +8,42 @@ import pandas as pd
 
 # Function to create a card (black purple based theme). You pass the icon for the card, title and the description.
 def create_feature_card(icon, title, description):
-   return f'''
-       <div class="feature-card" style="
-           background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
-           border-radius: 20px;
-           padding: 1.5rem;
-           border: 1px solid rgba(147, 51, 234, 0.2);
-           margin-bottom: 0.9rem;
-           display: block;  /* This Ensures block-level behavior */
-           box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
-           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-           position: relative;
-           overflow: hidden;
-           backdrop-filter: blur(10px);
-       " onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 8px 30px rgba(147, 51, 234, 0.2)'"
-          onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(147, 51, 234, 0.1)'">
-           <div class="icon-pulse" style="
-               font-size: 2.5rem;
-               margin-bottom: 0.8rem;
-               animation: pulse 2s infinite;
-           ">{icon}</div>
-           <h3 style="
-               color: #a855f7;
-               font-size: 1.4rem;
-               margin-bottom: 0.7rem;
-               font-weight: 600;
-               background: linear-gradient(90deg, #a855f7, #d946ef);
-               -webkit-background-clip: text;
-               -webkit-text-fill-color: transparent;
-           ">
-               {title}
-           </h3>
-           <p style="
-               color: #94a3b8;
-               line-height: 1.6;
-               font-size: 1.1rem;
-           ">
-               {description}
-           </p>
-           <div class="card-glow"></div>
-       </div>
-   '''
+    return f'''
+        <div style="
+            background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            margin-bottom: 0.9rem;
+            display: block;
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                font-size: 2.5rem;
+                margin-bottom: 0.8rem;
+                animation: pulse 2s infinite;
+            ">{icon}</div>
+            <div style="
+                color: #a855f7;
+                font-size: 1.4rem;
+                margin-bottom: 0.7rem;
+                font-weight: 600;
+                background: linear-gradient(90deg, #a855f7, #d946ef);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                display: inline-block;
+            ">{title}</div>
+            <div style="
+                color: #94a3b8;
+                line-height: 1.6;
+                font-size: 1.1rem;
+            ">{description}</div>
+        </div>
+    '''
 
 
 # Creating stats card which ttakes label, value and change as parameters.
@@ -79,6 +74,28 @@ def create_stat_card(label, value, change):
     '''
 # Main welcome page function.
 def welcome_page():
+    st.markdown("""
+    <style>
+    /* Remove white backgrounds */
+    .element-container {
+        background: transparent !important;
+    }
+    
+    .stMarkdown {
+        background: transparent !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] {
+        background: transparent !important;
+    }
+    
+    iframe {
+        background: transparent !important;
+        border: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+    
     st.markdown("""
     <style>
     /* Global styles that need to be defined first */
@@ -308,20 +325,29 @@ def welcome_page():
         </script>
     """, unsafe_allow_html=True)
 
+    # Replace your existing hero section markdown with this:
     # Hero Section
-    st.markdown('''
-        <div class="hero-section">
+    st.markdown("""
+        <div style="
+            background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
+            border-radius: 32px;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            box-shadow: 0 8px 32px rgba(147, 51, 234, 0.1);
+            backdrop-filter: blur(10px);
+        ">
             <h1 style="
                 font-size: 4rem;
                 font-weight: 800;
-                margin-bottom: 1.5rem;
                 background: linear-gradient(90deg, #a855f7, #d946ef);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                animation: float 6s ease-in-out infinite;
-            ">
-                Welcome to Finch
-            </h1>
+                margin-bottom: 1.5rem;
+                display: inline-block;
+                width: 100%;
+            ">Welcome to Finch</h1>
             <p style="
                 font-size: 1.4rem;
                 color: rgba(255, 255, 255, 0.9);
@@ -331,7 +357,7 @@ def welcome_page():
                 Elevate Your Trading Experience with AI-Powered Insights
             </p>
         </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     # Login/Register Buttons
     login_col, register_col = st.columns(2)
@@ -387,19 +413,21 @@ def welcome_page():
         st.components.v1.html(
             """
             <div style="
-                display: flex;
-                flex-direction: column;
-                height: 650px;
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            background: transparent;
+            border: none;
+        ">
+            <!-- Top Card -->
+            <div style="
+                background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
+                border-radius: 24px;
+                padding: 2.5rem;
+                border: 1px solid rgba(147, 51, 234, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                margin-bottom: 1rem;
             ">
-                <!-- Top Card -->
-                <div style="
-                    background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
-                    border-radius: 24px;
-                    padding: 2.5rem;
-                    border: 1px solid rgba(147, 51, 234, 0.2);
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                    margin-bottom: 1rem;
-                ">
                     <div style="
                         display: flex;
                         justify-content: space-between;
