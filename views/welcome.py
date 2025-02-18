@@ -79,10 +79,9 @@ def create_stat_card(label, value, change):
 
 # Main welcome page function.
 def welcome_page():
-    # Combine all CSS blocks into a single comprehensive style block
+    # Basic styles with animations
     st.markdown("""
         <style>
-        /* Gradient and Animation Keyframes */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -101,33 +100,184 @@ def welcome_page():
             100% { transform: translateY(0px); }
         }
         
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Global Application Styles */
         .stApp {
             background: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
             background-size: 200% 200%;
             animation: gradient 15s ease infinite;
-            color: #E2E8F0;
-            background-image: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
-            contain: content;
+            color: #E2E8F0;  /* Ensure text is visible */
         }
         
-        /* Override Streamlit Markdown Backgrounds */
-        .stMarkdown div {
+        .hero-section {
+            background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
+            border-radius: 32px;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            box-shadow: 0 8px 32px rgba(147, 51, 234, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #a855f7, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hero-section p {
+            font-size: 1.4rem;
+            color: #E2E8F0;  /* More visible text color */
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+        
+        /* Remove white grid effect from bottom right box */
+        .stComponentContainer {
             background: transparent !important;
         }
         
-        /* Image and Performance Optimizations */
-        img {
-            loading: lazy;
-            will-change: transform;
+        /* Button styles remain the same */
+        .modern-button {
+            background: linear-gradient(90deg, #a855f7, #d946ef);
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
         }
         
-        /* Hero Section Styling */
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
+        }
+        
+        /* Ensure feature cards and stats have visible text */
+        .card-header, .stat-value {
+            color: #E2E8F0;
+        }
+        
+        .card-description {
+            color: #94a3b8;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    
+    st.markdown("""
+    <style>
+    /* Global styles that need to be defined first */
+    .stApp {
+        background: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+        background-size: 200% 200%;
+        animation: gradient 15s ease infinite;
+    }
+    
+    /* Override any potential Streamlit interference with our gradient text */
+    .stMarkdown div {
+        background: transparent !important;
+    }
+    
+    /* Ensure gradient text is visible */
+    .gradient-heading {
+        background: linear-gradient(90deg, #a855f7, #d946ef);
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        display: inline-block;
+        font-size: 4rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 1.5rem !important;
+        animation: float 6s ease-in-out infinite;
+        width: 100%;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+        /* Optimize image loading */
+        img {
+            loading: lazy;
+            will-change: transform;  /* Optimize animation performance */
+        }
+        
+        /* Preload gradients */
+        .stApp {
+            background-image: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+            contain: content;  /* Improve paint performance */
+        }
+        
+        /* Optimize animations */
+        @keyframes float {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        /* Use hardware acceleration for animations */
+        .animated-element {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+        /* Use CSS transitions instead of JS for hover effects */
+        .modern-button {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Basic styles with animations (black-purple theme)
+    st.markdown("""
+        <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .stApp {
+            background: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+        
         .hero-section {
             background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
             border-radius: 32px;
@@ -152,67 +302,27 @@ def welcome_page():
             animation: rotate 20s linear infinite;
         }
         
-        /* Gradient Heading */
-        .gradient-heading {
+        .modern-button {
             background: linear-gradient(90deg, #a855f7, #d946ef);
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-            display: inline-block;
-            font-size: 4rem !important;
-            font-weight: 800 !important;
-            margin-bottom: 1.5rem !important;
-            animation: float 6s ease-in-out infinite;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .hero-section h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(90deg, #a855f7, #d946ef);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .hero-section p {
-            font-size: 1.4rem;
-            color: #E2E8F0;
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-        }
-        
-        /* Remove Component Containers Background */
-        .stComponentContainer {
-            background: transparent !important;
-        }
-        
-        /* Button Styles */
-        .modern-button, .stButton > button {
-            background: linear-gradient(90deg, #a855f7, #d946ef) !important;
-            color: white !important;
-            padding: 0.9rem 2rem !important;
-            border-radius: 16px !important;
-            border: none !important;
-            font-weight: 600 !important;
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px !important;
+            letter-spacing: 1px;
             display: inline-block;
             text-decoration: none;
             cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
         }
         
-        .modern-button:hover, .stButton > button:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4) !important;
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
         }
         
-        /* Stats and Card Styles */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -238,30 +348,13 @@ def welcome_page():
             opacity: 1;
         }
         
-        /* Responsive Adjustments */
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
         
-        /* Animated Elements Performance */
-        .animated-element {
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            perspective: 1000px;
-        }
-        
-        /* Visibility and Text Styles */
-        .card-header, .stat-value {
-            color: #E2E8F0;
-        }
-        
-        .card-description {
-            color: #94a3b8;
-        }
-        
-        /* Custom Scrollbar */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -279,6 +372,24 @@ def welcome_page():
         ::-webkit-scrollbar-thumb:hover {
             background: #d946ef;
         }
+        
+        /* Button styling */
+        .stButton > button {
+            background: linear-gradient(90deg, #a855f7, #d946ef) !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.9rem 2rem !important;
+            border-radius: 16px !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2) !important;
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4) !important;
+        }
         </style>
         
         <script>
@@ -294,6 +405,7 @@ def welcome_page():
         </script>
     """, unsafe_allow_html=True)
 
+    # Replace your existing hero section markdown with this:
     # Hero Section
     st.markdown("""
         <div style="
