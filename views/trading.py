@@ -213,197 +213,201 @@ def create_stock_cards():
     
     # CSS Styles
     styles = """
-    <style>
-        .stock-grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.8rem;
-            padding: 1.5rem;
-            margin: 1.5rem;
-        }
-        
-        .stock-card {
-            background: #1F1F1F;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            border-radius: 12px;
-            padding: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stock-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.03), transparent);
-            transform: translateX(-100%);
-            transition: 0.5s;
-        }
-        
-        .stock-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(168, 85, 247, 0.4);
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
-        }
-        
-        .stock-card:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .stock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.8rem;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-            padding-bottom: 0.8rem;
-        }
-        
-        .stock-symbol {
-            font-size: 1.3rem;
-            font-family: Georgia, serif;
-            font-weight: 400;
-            background: linear-gradient(to right, #E2E8F0, #A855F7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            white-space: nowrap;
-        }
-        
-        .stock-name {
-            color: #94A3B8;
-            font-size: 0.9rem;
-            margin: 0.3rem 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .stock-price-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        
-        .stock-price {
-            font-size: 1.4rem;
-            font-weight: 700;
-            font-family: "Gill Sans", sans-serif;
-            color: #E2E8F0;
-            margin: 0.5rem 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        
-        .trading-stats {
-            display: flex;
-            justify-content: space-between;
-            margin: 1rem 0;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-        }
-        
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: #94A3B8;
-            margin-bottom: 0.2rem;
-        }
-        
-        .stat-value {
-            font-size: 0.9rem;
-            color: #E2E8F0;
-            font-weight: 400;
-        }
-        
-        .market-trends {
-            padding: 0.8rem 0;
-        }
-        
-        .trend-item {
-            margin-bottom: 0.5rem;
-        }
-        
-        .trend-label {
-            font-size: 0.75rem;
-            color: #94A3B8;
-            display: block;
-            margin-bottom: 0.3rem;
-        }
-        
-        .trend-range {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #E2E8F0;
-        }
-        
-        .range-divider {
-            color: #94A3B8;
-            margin: 0 0.5rem;
-        }
-        
-        .quick-actions {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-        
-        .action-btn {
-            flex: 1;
-            padding: 0.5rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: transparent;
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #E2E8F0;
-        }
-        
-        .action-btn:hover {
-            background: rgba(168, 85, 247, 0.1);
-            border-color: rgba(168, 85, 247, 0.5);
-        }
-        
-        .action-btn.buy {
-            color: #4ADE80;
-            border-color: rgba(74, 222, 128, 0.3);
-        }
-        
-        .action-btn.buy:hover {
-            background: rgba(74, 222, 128, 0.1);
-            border-color: rgba(74, 222, 128, 0.5);
-        }
-        
-        .action-btn.sell {
-            color: #FB7185;
-            border-color: rgba(251, 113, 133, 0.3);
-        }
-        
-        .action-btn.sell:hover {
-            background: rgba(251, 113, 133, 0.1);
-            border-color: rgba(251, 113, 133, 0.5);
-        }
-        
-        body::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
+        <style>
+            body {
+                background-color: #000; /* Or any dark color you prefer */
+            }
+            .stock-grid-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1.8rem;
+                padding: 1.5rem;
+                margin: 1.5rem;
+            }
+            
+            .stock-card {
+                background: #1F1F1F;
+                border: 1px solid rgba(168, 85, 247, 0.2);
+                border-radius: 12px;
+                padding: 1.2rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                min-width: 0;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stock-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.03), transparent);
+                transform: translateX(-100%);
+                transition: 0.5s;
+            }
+            
+            .stock-card:hover {
+                transform: translateY(-3px);
+                border-color: rgba(168, 85, 247, 0.4);
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+            }
+            
+            .stock-card:hover::before {
+                transform: translateX(100%);
+            }
+            
+            .stock-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 0.8rem;
+                border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+                padding-bottom: 0.8rem;
+            }
+            
+            .stock-symbol {
+                font-size: 1.3rem;
+                font-family: Georgia, serif;
+                font-weight: 400;
+                background: linear-gradient(to right, #E2E8F0, #A855F7);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                white-space: nowrap;
+            }
+            
+            .stock-name {
+                color: #94A3B8;
+                font-size: 0.9rem;
+                margin: 0.3rem 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .stock-price-container {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            
+            .stock-price {
+                font-size: 1.4rem;
+                font-weight: 700;
+                font-family: "Gill Sans", sans-serif;
+                color: #E2E8F0;
+                margin: 0.5rem 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+            
+            .trading-stats {
+                display: flex;
+                justify-content: space-between;
+                margin: 1rem 0;
+                padding: 0.8rem 0;
+                border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+            }
+            
+            .stat-item {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                margin-bottom: 0.2rem;
+            }
+            
+            .stat-value {
+                font-size: 0.9rem;
+                color: #E2E8F0;
+                font-weight: 400;
+            }
+            
+            .market-trends {
+                padding: 0.8rem 0;
+            }
+            
+            .trend-item {
+                margin-bottom: 0.5rem;
+            }
+            
+            .trend-label {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                display: block;
+                margin-bottom: 0.3rem;
+            }
+            
+            .trend-range {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.9rem;
+                color: #E2E8F0;
+            }
+            
+            .range-divider {
+                color: #94A3B8;
+                margin: 0 0.5rem;
+            }
+            
+            .quick-actions {
+                display: flex;
+                gap: 0.8rem;
+                margin-top: 1rem;
+            }
+            
+            .action-btn {
+                flex: 1;
+                padding: 0.5rem;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                background: transparent;
+                border: 1px solid rgba(168, 85, 247, 0.3);
+                color: #E2E8F0;
+            }
+            
+            .action-btn:hover {
+                background: rgba(168, 85, 247, 0.1);
+                border-color: rgba(168, 85, 247, 0.5);
+            }
+            
+            .action-btn.buy {
+                color: #4ADE80;
+                border-color: rgba(74, 222, 128, 0.3);
+            }
+            
+            .action-btn.buy:hover {
+                background: rgba(74, 222, 128, 0.1);
+                border-color: rgba(74, 222, 128, 0.5);
+            }
+            
+            .action-btn.sell {
+                color: #FB7185;
+                border-color: rgba(251, 113, 133, 0.3);
+            }
+            
+            .action-btn.sell:hover {
+                background: rgba(251, 113, 133, 0.1);
+                border-color: rgba(251, 113, 133, 0.5);
+            }
+            
+            body::-webkit-scrollbar {
+                display: none;
+            }
+        </style>
     """
+
     
     # Combine styles and content and loading all together from streamlit components v1 html library.
     full_html = f"{js_code}{styles}{html_content}"
