@@ -494,18 +494,29 @@ def welcome_page():
         }
         .element-container {
             background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .stColumn {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .stApp {
+            background: transparent !important;
         }
         </style>
     """, unsafe_allow_html=True)
         
         st.components.v1.html(
-            """
-            <div style="
+        """
+        <div style="
             display: flex;
             flex-direction: column;
             height: 650px;
             background: transparent;
             border: none;
+            margin: 0;
+            padding: 0;
         ">
             <!-- Top Card -->
             <div style="
@@ -628,7 +639,8 @@ def welcome_page():
                     </div>
                 </div>
             """,
-            height=500
+            height=500,
+            scrolling = False 
         )
 
         # Stats Section using columns
