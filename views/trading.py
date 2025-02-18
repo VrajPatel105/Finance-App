@@ -421,6 +421,14 @@ def create_stock_cards():
 
 def trading_page():
     st.title('Trading Dashboard')
+    st.markdown("""
+        <style>
+        .stApp {
+            background-color: #000000;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     # In trading.py
     st.markdown("""
         <style>
