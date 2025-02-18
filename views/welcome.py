@@ -36,7 +36,6 @@ def create_feature_card(icon, title, description):
                 font-weight: 600;
                 background: linear-gradient(90deg, #a855f7, #d946ef);
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
                 display: inline-block;
                 width: 100%;
             ">{title}</h3>
@@ -70,7 +69,6 @@ def create_stat_card(label, value, change):
                 font-weight: 700;
                 background: linear-gradient(90deg, #a855f7, #d946ef);
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
                 margin-bottom: 0.5rem;
             ">{value}</div>
             <div style="font-size: 0.9rem; color: #22c55e;">↑ {change}</div>
@@ -126,7 +124,6 @@ def welcome_page():
             margin-bottom: 1.5rem;
             background: linear-gradient(90deg, #a855f7, #d946ef);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             animation: float 6s ease-in-out infinite;
         }
         
@@ -663,7 +660,6 @@ def welcome_page():
                 margin-bottom: 2rem;
                 background: linear-gradient(90deg, #a855f7, #d946ef);
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
             ">
                 Why Choose Finch?
             </h2>
