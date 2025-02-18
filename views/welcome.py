@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from streamlit.components.v1 import html
 import pandas as pd
+import plotly.subplots as sp
 
 
 
@@ -484,246 +485,74 @@ def welcome_page():
             unsafe_allow_html=True
         )
 
-   # Using streamlit components v1 html lib to load the html code in streamlit properly. This library handles code well in certain situation.
-    with col2:
-        st.components.v1.html(
-            """
-            <div style="
-                background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
-                border-radius: 24px;
-                padding: 2rem;
-                border: 1px solid rgba(147, 51, 234, 0.2);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            ">
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 2rem;
-                ">
-                    <h2 style="
-                        color: #a855f7;
-                        font-size: 1.5rem;
-                        font-weight: 600;
-                        margin: 0;
-                    ">Portfolio Analytics</h2>
-                    <div style="
-                        background: rgba(168, 85, 247, 0.1);
-                        color: #a855f7;
-                        padding: 0.5rem 1rem;
-                        border-radius: 20px;
-                        font-size: 0.8rem;
-                        font-weight: 500;
-                    ">
-                        Comprehensive Insights
-                    </div>
-                </div>
 
-                <div style="
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 1rem;
-                ">
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Total Value</div>
-                        <div style="
-                            color: #ffffff;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                            background: linear-gradient(90deg, #a855f7, #d946ef);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        ">
-                            $245,678
-                        </div>
-                        <div style="
-                            color: #22c55e;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            ↑ 12.4%
-                        </div>
-                    </div>
-
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Active Positions</div>
-                        <div style="
-                            color: #ffffff;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                        ">
-                            24
-                        </div>
-                        <div style="
-                            color: #64748b;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            Stocks & Crypto
-                        </div>
-                    </div>
-
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Performance</div>
-                        <div style="
-                            color: #ffffff;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                            background: linear-gradient(90deg, #a855f7, #d946ef);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        ">
-                            8.7%
-                        </div>
-                        <div style="
-                            color: #22c55e;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            This Month
-                        </div>
-                    </div>
-                </div>
-
-                <div style="
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 1rem;
-                    margin-top: 1rem;
-                ">
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Gain/Loss</div>
-                        <div style="
-                            color: #22c55e;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                        ">
-                            +$15,234
-                        </div>
-                        <div style="
-                            color: #64748b;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            YTD Returns
-                        </div>
-                    </div>
-
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Risk Score</div>
-                        <div style="
-                            color: #ffffff;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                            background: linear-gradient(90deg, #a855f7, #d946ef);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        ">
-                            Moderate
-                        </div>
-                        <div style="
-                            color: #64748b;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            Portfolio Volatility
-                        </div>
-                    </div>
-
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        border: 1px solid rgba(147, 51, 234, 0.2);
-                        border-radius: 16px;
-                        padding: 1.5rem;
-                        text-align: center;
-                    ">
-                        <div style="
-                            color: #94a3b8;
-                            font-size: 0.9rem;
-                            margin-bottom: 0.75rem;
-                        ">Diversification</div>
-                        <div style="
-                            color: #ffffff;
-                            font-size: 1.8rem;
-                            font-weight: 700;
-                        ">
-                            72%
-                        </div>
-                        <div style="
-                            color: #22c55e;
-                            font-size: 0.9rem;
-                            margin-top: 0.5rem;
-                        ">
-                            Asset Spread
-                        </div>
-                    </div>
-                </div>
-            </div>
-            """,
-            height=490
-        )
-
-        # Stats Section using columns
-        stat1, stat2, stat3 = st.columns(3)
-        
-        with stat1:
-            st.markdown(create_stat_card("24h Volume", "$18.5M", "12.3%"), unsafe_allow_html=True)
+        with col2:
+    # Generate simpler financial data
+            np.random.seed(42)
+            dates = pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')
             
-        with stat2:
-            st.markdown(create_stat_card("Market Cap", "$245.8M", "8.7%"), unsafe_allow_html=True)
+            # Simulated price data
+            base_price = 100
+            prices = base_price + np.cumsum(np.random.normal(0, 1, len(dates)))
             
-        with stat3:
-            st.markdown(create_stat_card("Active Traders", "12.4K", "5.2%"), unsafe_allow_html=True)
+            # Volume simulation
+            volume = np.random.randint(1000000, 5000000, len(dates))
+            
+            # Create subplot with two rows
+            fig = sp.make_subplots(
+                rows=2, 
+                cols=1, 
+                shared_xaxes=True, 
+                vertical_spacing=0.1,
+                row_heights=[0.7, 0.3]
+            )
+
+            # Add Line chart for prices
+            fig.add_trace(
+                go.Scatter(
+                    x=dates,
+                    y=prices,
+                    mode='lines',
+                    name='Price',
+                    line=dict(color='#4ADE80')
+                ),
+                row=1, col=1
+            )
+
+            # Add Volume Bar Chart
+            fig.add_trace(
+                go.Bar(
+                    x=dates,
+                    y=volume,
+                    marker_color='rgba(168, 85, 247, 0.6)',
+                    name='Trading Volume'
+                ),
+                row=2, col=1
+            )
+
+            # Update layout
+            fig.update_layout(
+                title='Market Analysis',
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                height=500,
+                showlegend=False,
+                margin=dict(l=50, r=50, t=80, b=50),
+            )
+
+            # Render the chart
+            st.plotly_chart(fig, use_container_width=True)
+
+            stat1, stat2, stat3 = st.columns(3)
+
+            with stat1:
+                st.markdown(create_stat_card("24h Volume", "$18.5M", "12.3%"), unsafe_allow_html=True)
+                
+            with stat2:
+                st.markdown(create_stat_card("Market Cap", "$245.8M", "8.7%"), unsafe_allow_html=True)
+                
+            with stat3:
+                st.markdown(create_stat_card("Active Traders", "12.4K", "5.2%"), unsafe_allow_html=True)
 
     # Why Choose Finch Section
     st.markdown('''
@@ -753,7 +582,7 @@ def welcome_page():
    
     with col1:
         st.markdown(create_feature_card("💡", "AI-Powered", 
-                   "Advanced algorithms for smarter trading decisions"), unsafe_allow_html=True)
+                   "Advanced algorithms for smarter trading "), unsafe_allow_html=True)
     with col2:
         st.markdown(create_feature_card("⚡", "Real-Time", 
                    "Instant market updates and notifications"), unsafe_allow_html=True)
