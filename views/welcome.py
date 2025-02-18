@@ -6,10 +6,12 @@ import numpy as np
 from streamlit.components.v1 import html
 import pandas as pd
 
+
+
 # Function to create a card (black purple based theme). You pass the icon for the card, title and the description.
 def create_feature_card(icon, title, description):
     return f'''
-        <div style="
+        <div class="feature-card" style="
             background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
             border-radius: 20px;
             padding: 1.5rem;
@@ -21,14 +23,14 @@ def create_feature_card(icon, title, description):
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(10px);
+            color: white;
         ">
-            <div style="
+            <div class="icon" style="
                 font-size: 2.5rem;
                 margin-bottom: 0.8rem;
                 animation: pulse 2s infinite;
             ">{icon}</div>
-            <div style="
-                color: #a855f7;
+            <h3 style="
                 font-size: 1.4rem;
                 margin-bottom: 0.7rem;
                 font-weight: 600;
@@ -36,15 +38,17 @@ def create_feature_card(icon, title, description):
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 display: inline-block;
-            ">{title}</div>
-            <div style="
-                color: #94a3b8;
+                width: 100%;
+            ">{title}</h3>
+            <p style="
+                color: #94a3b8 !important;
                 line-height: 1.6;
                 font-size: 1.1rem;
-            ">{description}</div>
+                margin: 0;
+                padding: 0;
+            ">{description}</p>
         </div>
     '''
-
 
 # Creating stats card which ttakes label, value and change as parameters.
 def create_stat_card(label, value, change):
@@ -75,26 +79,32 @@ def create_stat_card(label, value, change):
 # Main welcome page function.
 def welcome_page():
     st.markdown("""
-    <style>
-    /* Remove white backgrounds */
-    .element-container {
-        background: transparent !important;
-    }
-    
-    .stMarkdown {
-        background: transparent !important;
-    }
-    
-    div[data-testid="stVerticalBlock"] {
-        background: transparent !important;
-    }
-    
-    iframe {
-        background: transparent !important;
-        border: none !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+        <style>
+        /* Remove ALL white backgrounds */
+        .stApp, .element-container, [data-testid="stVerticalBlock"], .stMarkdown, iframe {
+            background: transparent !important;
+        }
+        
+        /* Ensure text is visible */
+        .feature-card p {
+            color: #94a3b8 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Remove any unwanted borders */
+        iframe, .element-container {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Fix any potential z-index issues */
+        .feature-card {
+            z-index: 1;
+            position: relative;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
     <style>
@@ -410,6 +420,18 @@ def welcome_page():
 
    # Using streamlit components v1 html lib to load the html code in streamlit properly. This library handles code well in certain situation.
     with col2:
+        st.markdown("""
+        <style>
+        iframe {
+            border: none !important;
+            background: transparent !important;
+        }
+        .element-container {
+            background: transparent !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+        
         st.components.v1.html(
             """
             <div style="
