@@ -10,7 +10,20 @@ from utils.stock_utils import create_crypto_chart
 import json
 from utils.formatters import format_number
 
+import streamlit as st
+import requests
+from datetime import datetime
+from database.connection import get_database
+import streamlit as st
+from streamlit.components.v1 import html
+import time
+from streamlit_lottie import st_lottie
+from utils.stock_utils import create_crypto_chart
+import json
+from utils.formatters import format_number
+
 def load_crypto_details(user_input):
+    
    
 
     def load_transaction_complete_lottie(flag):
@@ -57,7 +70,7 @@ def load_crypto_details(user_input):
 
     st.markdown("""
        <style>
-       .stApp {background-color: #0E1117}
+       .stApp {background-color: #000000;} /* Changed background to black */
        .crypto-card {
            background-color: #1E293B;
            padding: 1.5rem;
@@ -68,6 +81,16 @@ def load_crypto_details(user_input):
        .metric-label {color: #94A3B8}
        .positive-change {color: #4ADE80}
        .negative-change {color: #F87171}
+
+       /* Style to remove white background around the chart */
+       .element-container > div {
+            background-color: transparent !important;
+        }
+        div.stPlotChart {
+            background-color: transparent !important;
+        }
+
+
        </style>
    """, unsafe_allow_html=True)
 
@@ -161,8 +184,6 @@ def load_crypto_details(user_input):
                     """, height=200)
                 # calling the chart function.
                 create_crypto_chart(user_input)
-
-
                 col1, col2 = st.columns(2)
 
                 with col1:

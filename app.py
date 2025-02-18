@@ -256,7 +256,6 @@ def init_session_state():
 
 def main():
     init_session_state()
-       # Calling the database instance
     st.markdown("""
     <style>
     /* Global styles */
@@ -277,6 +276,7 @@ def main():
     </style>
 """, unsafe_allow_html=True)
        
+       # Calling the database instance
     db = get_database()
 
     if st.session_state.logged_in and 'user' in st.session_state:
