@@ -70,7 +70,7 @@ def register_page(db):
         }
         
         .stButton button {
-            background: linear-gradient(90deg, #a855f7, #d946ef) !important;
+            background: linear-gradient(90deg, #7d1cc2, #ab23b3) !important;
             color: white !important;
             border: none !important;
             padding: 1rem !important;
@@ -107,7 +107,7 @@ def register_page(db):
         
         .login-link {
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 1rem;
             padding: 1rem;
             background: rgba(23, 23, 30, 0.9);
             border: 1px solid rgba(168, 85, 247, 0.2);
@@ -299,7 +299,8 @@ def login_page(db):
         
         /* Submit button */
         .stButton button {
-            background: linear-gradient(90deg, #a855f7, #d946ef) !important;
+            background: linear-gradient(90deg, #7d1cc2, #ab23b3) !important;
+
             color: white !important;
             border: none !important;
             padding: 1rem !important;

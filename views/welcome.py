@@ -373,7 +373,7 @@ def welcome_page():
         
         /* Button styling */
         .stButton > button {
-            background: linear-gradient(90deg, #a855f7, #d946ef) !important;
+            background: linear-gradient(90deg, #7d1cc2, #ab23b3) !important;
             color: white !important;
             border: none !important;
             padding: 0.9rem 2rem !important;
