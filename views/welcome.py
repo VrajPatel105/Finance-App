@@ -488,24 +488,12 @@ def welcome_page():
     with col2:
         st.markdown("""
         <style>
-        /* Remove all default Streamlit styling */
-        .stApp, .stColumn, .element-container, .stColumnWrapper {
+        div[data-testid="column"]:nth-child(2) .stColumn,
+        div[data-testid="column"]:nth-child(2) .element-container,
+        div[data-testid="column"]:nth-child(2) iframe {
             background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
             border: none !important;
-        }
-        
-        /* Additional reset for iframes and components */
-        iframe {
-            border: none !important;
-            outline: none !important;
             box-shadow: none !important;
-        }
-        
-        /* Ensure no white background or borders */
-        div[data-testid="stHorizontalBlock"] > div {
-            background: transparent !important;
             padding: 0 !important;
             margin: 0 !important;
         }
@@ -515,137 +503,126 @@ def welcome_page():
         st.components.v1.html(
             """
             <div style="
-                display: flex;
-                flex-direction: column;
-                height: 650px;
-                background: transparent;
-                border: none;
+                background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
+                border-radius: 24px;
+                padding: 2.5rem;
+                border: 1px solid rgba(147, 51, 234, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
                 margin: 0;
-                padding: 0;
-                overflow: hidden;
+                width: 100%;
+                box-sizing: border-box;
             ">
-                <!-- Top Card with existing styles -->
                 <div style="
-                    background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
-                    border-radius: 24px;
-                    padding: 2.5rem;
-                    border: 1px solid rgba(147, 51, 234, 0.2);
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                    margin: 0;
-                    width: 100%;
-                    box-sizing: border-box;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 2.5rem;
                 ">
                     <div style="
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                        color: #a855f7;
+                    ">Market Pulse</div>
+                    <div style="
                         display: flex;
-                        justify-content: space-between;
                         align-items: center;
-                        margin-bottom: 2.5rem;
+                        gap: 0.5rem;
+                        color: #a855f7;
+                        font-size: 0.9rem;
                     ">
-                        <div style="
-                            font-size: 1.5rem;
-                            font-weight: 600;
-                            color: #a855f7;
-                        ">Market Pulse</div>
-                        <div style="
-                            display: flex;
-                            align-items: center;
-                            gap: 0.5rem;
-                            color: #a855f7;
-                            font-size: 0.9rem;
-                        ">
-                            ✨ Live
-                        </div>
-                    </div>
-
-                    <div style="
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 1.5rem;
-                        margin-bottom: 2.5rem;
-                    ">
-                        <div style="
-                            background: rgba(15, 15, 20, 0.6);
-                            padding: 2rem;
-                            border-radius: 16px;
-                        ">
-                            <div style="
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 1rem;
-                            ">
-                                <span style="color: #94a3b8;">BTC/USD</span>
-                                <span style="color: #22c55e;">↑ +2.4%</span>
-                            </div>
-                            <div style="
-                                font-size: 2rem;
-                                font-weight: 600;
-                                color: #ffffff;
-                                margin-bottom: 0.5rem;
-                            ">$48,532</div>
-                            <div style="color: #64748b; font-size: 0.9rem;">Updated just now</div>
-                        </div>
-
-                        <div style="
-                            background: rgba(15, 15, 20, 0.6);
-                            padding: 2rem;
-                            border-radius: 16px;
-                        ">
-                            <div style="
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 1rem;
-                            ">
-                                <span style="color: #94a3b8;">24h Volume</span>
-                                <span style="color: #a855f7;">$</span>
-                            </div>
-                            <div style="
-                                font-size: 2rem;
-                                font-weight: 600;
-                                color: #ffffff;
-                                margin-bottom: 0.5rem;
-                            ">$1.2B</div>
-                            <div style="color: #64748b; font-size: 0.9rem;">Across all pairs</div>
-                        </div>
-                    </div>
-
-                    <div style="
-                        display: grid;
-                        grid-template-columns: repeat(3, 1fr);
-                        gap: 1rem;
-                    ">
-                        <div style="
-                            background: rgba(15, 15, 20, 0.6);
-                            padding: 1.75rem;
-                            border-radius: 16px;
-                            text-align: center;
-                        ">
-                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">12.4K</div>
-                            <div style="color: #64748b; font-size: 0.9rem;">Active Traders</div>
-                        </div>
-
-                        <div style="
-                            background: rgba(15, 15, 20, 0.6);
-                            padding: 1.75rem;
-                            border-radius: 16px;
-                            text-align: center;
-                        ">
-                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">5.2K</div>
-                            <div style="color: #64748b; font-size: 0.9rem;">Open Orders</div>
-                        </div>
-
-                        <div style="
-                            background: rgba(15, 15, 20, 0.6);
-                            padding: 1.75rem;
-                            border-radius: 16px;
-                            text-align: center;
-                        ">
-                            <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">892</div>
-                            <div style="color: #64748b; font-size: 0.9rem;">New Users</div>
-                        </div>
+                        ✨ Live
                     </div>
                 </div>
+
+                <div style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1.5rem;
+                    margin-bottom: 2.5rem;
+                ">
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        padding: 2rem;
+                        border-radius: 16px;
+                    ">
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1rem;
+                        ">
+                            <span style="color: #94a3b8;">BTC/USD</span>
+                            <span style="color: #22c55e;">↑ +2.4%</span>
+                        </div>
+                        <div style="
+                            font-size: 2rem;
+                            font-weight: 600;
+                            color: #ffffff;
+                            margin-bottom: 0.5rem;
+                        ">$48,532</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">Updated just now</div>
+                    </div>
+
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        padding: 2rem;
+                        border-radius: 16px;
+                    ">
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1rem;
+                        ">
+                            <span style="color: #94a3b8;">24h Volume</span>
+                            <span style="color: #a855f7;"></span>
+                        </div>
+                        <div style="
+                            font-size: 2rem;
+                            font-weight: 600;
+                            color: #ffffff;
+                            margin-bottom: 0.5rem;
+                        ">$1.2B</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">Across all pairs</div>
+                    </div>
+                </div>
+
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 1rem;
+                ">
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        padding: 1.75rem;
+                        border-radius: 16px;
+                        text-align: center;
+                    ">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">12.4K</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">Active Traders</div>
+                    </div>
+
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        padding: 1.75rem;
+                        border-radius: 16px;
+                        text-align: center;
+                    ">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">5.2K</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">Open Orders</div>
+                    </div>
+
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        padding: 1.75rem;
+                        border-radius: 16px;
+                        text-align: center;
+                    ">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">892</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">New Users</div>
+                    </div>
+                </div>
+            </div>
             """,
             height=500
         )
