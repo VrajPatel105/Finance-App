@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 def create_stock_chart(symbol):
     # TradingView Chart Embedded using st.components.html()
     tradingview_html = f"""
-        <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container" style="background-color: #000000; padding: 0;">
             <div id="tradingview_chart"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
             <script type="text/javascript">
@@ -18,18 +18,13 @@ def create_stock_chart(symbol):
                 "theme": "dark",
                 "style": "1",
                 "locale": "en",
-                "toolbar_bg": "#131722",
+                "toolbar_bg": "#000000",
                 "enable_publishing": false,
                 "allow_symbol_change": true,
                 "container_id": "tradingview_chart"
             }});
             </script>
         </div>
-        <style>
-        .tradingview-widget-container {{
-            background-color: #000000;
-        }}
-        </style>
     """
 
     # Display TradingView chart in Streamlit
