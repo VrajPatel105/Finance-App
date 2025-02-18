@@ -166,7 +166,7 @@ def load_crypto_details(user_input):
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    with st.form(key='buy_crypto', enter_to_submit=True):
+                    with st.form(key='buy_crypto'):
                         st.subheader(f'Buy {user_input}')
                         
                         crypto_amount = st.number_input('Amount', min_value=0.1, step=0.1)
@@ -206,7 +206,7 @@ def load_crypto_details(user_input):
                                 st.error('User balance information unavailable.')
 
                 with col2:
-                    with st.form(key='sell_crypto', enter_to_submit=True):
+                    with st.form(key='sell_crypto'):
                         st.subheader(f'Sell {user_input}')
                         
                         sell_amount = st.number_input('Amount', min_value=0.1, step=0.1, key='sell_amount')
