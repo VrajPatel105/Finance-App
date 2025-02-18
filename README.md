@@ -130,7 +130,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - TradingView for chart widgets
 - Streamlit for the web framework
 - All API providers for their services
-
-## Support
-
-For support, email support@finchtrading.com or open an issue in the repository.
