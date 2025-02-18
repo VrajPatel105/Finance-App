@@ -76,6 +76,7 @@ def create_stat_card(label, value, change):
             <div style="font-size: 0.9rem; color: #22c55e;">↑ {change}</div>
         </div>
     '''
+
 # Main welcome page function.
 def welcome_page():
     st.markdown("""
