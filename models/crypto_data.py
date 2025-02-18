@@ -182,8 +182,10 @@ def load_crypto_details(user_input):
                             </p>
                         </div>
                     """, height=200)
+                    
                 # calling the chart function.
                 create_crypto_chart(user_input)
+                
                 col1, col2 = st.columns(2)
 
                 with col1:
