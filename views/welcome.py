@@ -79,33 +79,102 @@ def create_stat_card(label, value, change):
 
 # Main welcome page function.
 def welcome_page():
+    # Basic styles with animations
     st.markdown("""
         <style>
-        /* Remove ALL white backgrounds */
-        .stApp, .element-container, [data-testid="stVerticalBlock"], .stMarkdown, iframe {
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .stApp {
+            background: linear-gradient(135deg, #0a0a0f 0%, #17171d 100%);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+            color: #E2E8F0;  /* Ensure text is visible */
+        }
+        
+        .hero-section {
+            background: linear-gradient(145deg, rgba(32, 32, 40, 0.9), rgba(23, 23, 30, 0.9));
+            border-radius: 32px;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            box-shadow: 0 8px 32px rgba(147, 51, 234, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #a855f7, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hero-section p {
+            font-size: 1.4rem;
+            color: #E2E8F0;  /* More visible text color */
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+        
+        /* Remove white grid effect from bottom right box */
+        .stComponentContainer {
             background: transparent !important;
         }
         
-        /* Ensure text is visible */
-        .feature-card p {
-            color: #94a3b8 !important;
-            opacity: 1 !important;
-            visibility: visible !important;
+        /* Button styles remain the same */
+        .modern-button {
+            background: linear-gradient(90deg, #a855f7, #d946ef);
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
         }
         
-        /* Remove any unwanted borders */
-        iframe, .element-container {
-            border: none !important;
-            box-shadow: none !important;
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
         }
         
-        /* Fix any potential z-index issues */
-        .feature-card {
-            z-index: 1;
-            position: relative;
+        /* Ensure feature cards and stats have visible text */
+        .card-header, .stat-value {
+            color: #E2E8F0;
+        }
+        
+        .card-description {
+            color: #94a3b8;
         }
         </style>
     """, unsafe_allow_html=True)
+
     
     st.markdown("""
     <style>
