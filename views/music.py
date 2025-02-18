@@ -4,37 +4,28 @@ import time
 
 def create_floating_music_player():
     spotify_playlists = [
-        '37i9dQZF1DWZeKCadgRdKQ',  # Deep Focus
-        '37i9dQZF1DX4sWSpwq3LiO',  # Peaceful Piano
-        '37i9dQZF1DWWQRwui0ExPn',  # LoFi Beats
-        '37i9dQZF1DX2TRYkJECvfC',  # Deep House Focus
-        '37i9dQZF1DX8NTLI2TtZa6',  # Instrumental Study
-        '37i9dQZF1DWV7EzJMK2FUI',  # Jazz in the Background
-        '37i9dQZF1DX3XuTDjo5z5z',  # Electronic Focus
-        '37i9dQZF1DWXHQpqStiWL4',  # Classical Focus
-        '37i9dQZF1DX4PP3DA4J0N8',  # Nature Sounds
-        '37i9dQZF1DX3Ogo9pFvBkY',  # Ambient Relaxation
-        '37i9dQZF1DWZZbwlv3Vmtr',  # Focus Flow
-        '37i9dQZF1DWXLeA8Omikj7',  # Brain Food
-        '37i9dQZF1DWUZ5bk6qqDSy',  # White Noise
-        '37i9dQZF1DX0tFt8BAdFgM',  # Focus Space
-        '37i9dQZF1DX9sIqqvKsjG8',  # Reading and Focus
-        '37i9dQZF1DX5trt9i14X7j'  # Coding Mode
-        '37i9dQZF1DX8Uebhn9wzrS'  # Chill Lofi Study Beats
-        '37i9dQZF1DX0SM0LYsmbMT'  # Jazz Vibes
-        '37i9dQZF1DX7K31D69s4M1'  # Piano in the Background
-        '37i9dQZF1DXc8kgYqQLMfH'  # Lush Lofi
-        '37i9dQZF1DX692WcMwL2yW'  # All-Nighter
-        '37i9dQZF1DXaXB8fQg7xif'  # Dance Party
-        '37i9dQZF1DWZeKCadgRdKQ'  # Deep Focus
-        '37i9dQZF1DX1s9knjP51Oa'  # Calm Vibes
-        '37i9dQZF1DWWQRwui0ExPn'  # LoFi Beats
-        '37i9dQZF1DX9RwfGbeGQwP'  # Chill Hits
-        '37i9dQZF1DWXe9gFZP0gtP'  # Relax & Unwind
-        '37i9dQZF1DWZqd5JICZI0u'  # Evening Chill
-        '37i9dQZF1DX3PFzdbtx1Us'  # Chillout Lounge
-        '37i9dQZF1DX9uKNf5jGX6m'  # Study Break
-    ]
+    '37i9dQZF1DWZeKCadgRdKQ',  # Deep Focus
+    '37i9dQZF1DX4sWSpwq3LiO',  # Peaceful Piano
+    '37i9dQZF1DWWQRwui0ExPn',  # LoFi Beats
+    '37i9dQZF1DX6VdMW310YC7',  # Chill Instrumental Beats
+    '37i9dQZF1DX8NTLI2TtZa6',  # Instrumental Study
+    '37i9dQZF1DWV7EzJMK2FUI',  # Jazz in the Background
+    '37i9dQZF1DX5trt9i14X7j',  # Coding Mode
+    '37i9dQZF1DXa2PvUpywmrr',  # Intense Studying
+    '37i9dQZF1DX9sIqqvKsjG8',  # Reading and Studying
+    '37i9dQZF1DX8ymr6UES7vc',  # Rain Sounds
+    '37i9dQZF1DXcCnTAt8CfNe',  # Acoustic Concentration
+    '37i9dQZF1DX692WcMwL2yW',  # All-Nighter
+    '37i9dQZF1DX4PP3DA4J0N8',  # Nature Sounds
+    '37i9dQZF1DWZqd5JICZI0u',  # Evening Acoustic
+    '37i9dQZF1DX9B1hu73DioC',  # Creativity Boost
+    '37i9dQZF1DWUvQoIOFMFUT',  # Ambient Chill
+    '37i9dQZF1DX0Yxoavh5qJV',  # Focus Flow
+    '37i9dQZF1DWSSrwtip3vZP',  # Binaural Beats
+    '37i9dQZF1DX3PIPIT6lEg5',  # White Noise
+    '37i9dQZF1DWXe9gFZP0gtP',  # Relax & Unwind
+]
+
 
     # Initialize session state for playlist and timestamp if they don't exist
     if 'current_playlist' not in st.session_state:
