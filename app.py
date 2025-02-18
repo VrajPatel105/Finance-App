@@ -261,7 +261,7 @@ def main():
     <style>
     /* Global styles */
     .stApp {
-        background-color: #0E1117;
+        background-color: #00000;
     }
     
     /* Ensure text is visible */
