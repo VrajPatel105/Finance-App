@@ -486,104 +486,36 @@ def welcome_page():
 
    # Using streamlit components v1 html lib to load the html code in streamlit properly. This library handles code well in certain situation.
     with col2:
-        st.markdown("""
-        <style>
-        div[data-testid="column"]:nth-child(2) .stColumn,
-        div[data-testid="column"]:nth-child(2) .element-container,
-        div[data-testid="column"]:nth-child(2) iframe {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
         st.components.v1.html(
             """
             <div style="
                 background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
                 border-radius: 24px;
-                padding: 2.5rem;
+                padding: 2rem;
                 border: 1px solid rgba(147, 51, 234, 0.2);
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                margin: 0;
-                width: 100%;
-                box-sizing: border-box;
             ">
                 <div style="
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 2.5rem;
+                    margin-bottom: 2rem;
                 ">
-                    <div style="
+                    <h2 style="
+                        color: #a855f7;
                         font-size: 1.5rem;
                         font-weight: 600;
+                        margin: 0;
+                    ">Portfolio Analytics</h2>
+                    <div style="
+                        background: rgba(168, 85, 247, 0.1);
                         color: #a855f7;
-                    ">Market Pulse</div>
-                    <div style="
-                        display: flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                        color: #a855f7;
-                        font-size: 0.9rem;
+                        padding: 0.5rem 1rem;
+                        border-radius: 20px;
+                        font-size: 0.8rem;
+                        font-weight: 500;
                     ">
-                        ✨ Live
-                    </div>
-                </div>
-
-                <div style="
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 1.5rem;
-                    margin-bottom: 2.5rem;
-                ">
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        padding: 2rem;
-                        border-radius: 16px;
-                    ">
-                        <div style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            margin-bottom: 1rem;
-                        ">
-                            <span style="color: #94a3b8;">BTC/USD</span>
-                            <span style="color: #22c55e;">↑ +2.4%</span>
-                        </div>
-                        <div style="
-                            font-size: 2rem;
-                            font-weight: 600;
-                            color: #ffffff;
-                            margin-bottom: 0.5rem;
-                        ">$48,532</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">Updated just now</div>
-                    </div>
-
-                    <div style="
-                        background: rgba(15, 15, 20, 0.6);
-                        padding: 2rem;
-                        border-radius: 16px;
-                    ">
-                        <div style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            margin-bottom: 1rem;
-                        ">
-                            <span style="color: #94a3b8;">24h Volume</span>
-                            <span style="color: #a855f7;"></span>
-                        </div>
-                        <div style="
-                            font-size: 2rem;
-                            font-weight: 600;
-                            color: #ffffff;
-                            margin-bottom: 0.5rem;
-                        ">$1.2B</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">Across all pairs</div>
+                        Comprehensive Insights
                     </div>
                 </div>
 
@@ -594,37 +526,191 @@ def welcome_page():
                 ">
                     <div style="
                         background: rgba(15, 15, 20, 0.6);
-                        padding: 1.75rem;
+                        border: 1px solid rgba(147, 51, 234, 0.2);
                         border-radius: 16px;
+                        padding: 1.5rem;
                         text-align: center;
                     ">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">12.4K</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">Active Traders</div>
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Total Value</div>
+                        <div style="
+                            color: #ffffff;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                            background: linear-gradient(90deg, #a855f7, #d946ef);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        ">
+                            $245,678
+                        </div>
+                        <div style="
+                            color: #22c55e;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            ↑ 12.4%
+                        </div>
                     </div>
 
                     <div style="
                         background: rgba(15, 15, 20, 0.6);
-                        padding: 1.75rem;
+                        border: 1px solid rgba(147, 51, 234, 0.2);
                         border-radius: 16px;
+                        padding: 1.5rem;
                         text-align: center;
                     ">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">5.2K</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">Open Orders</div>
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Active Positions</div>
+                        <div style="
+                            color: #ffffff;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                        ">
+                            24
+                        </div>
+                        <div style="
+                            color: #64748b;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            Stocks & Crypto
+                        </div>
                     </div>
 
                     <div style="
                         background: rgba(15, 15, 20, 0.6);
-                        padding: 1.75rem;
+                        border: 1px solid rgba(147, 51, 234, 0.2);
                         border-radius: 16px;
+                        padding: 1.5rem;
                         text-align: center;
                     ">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem;">892</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">New Users</div>
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Performance</div>
+                        <div style="
+                            color: #ffffff;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                            background: linear-gradient(90deg, #a855f7, #d946ef);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        ">
+                            8.7%
+                        </div>
+                        <div style="
+                            color: #22c55e;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            This Month
+                        </div>
+                    </div>
+                </div>
+
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 1rem;
+                    margin-top: 1rem;
+                ">
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        border: 1px solid rgba(147, 51, 234, 0.2);
+                        border-radius: 16px;
+                        padding: 1.5rem;
+                        text-align: center;
+                    ">
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Gain/Loss</div>
+                        <div style="
+                            color: #22c55e;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                        ">
+                            +$15,234
+                        </div>
+                        <div style="
+                            color: #64748b;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            YTD Returns
+                        </div>
+                    </div>
+
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        border: 1px solid rgba(147, 51, 234, 0.2);
+                        border-radius: 16px;
+                        padding: 1.5rem;
+                        text-align: center;
+                    ">
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Risk Score</div>
+                        <div style="
+                            color: #ffffff;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                            background: linear-gradient(90deg, #a855f7, #d946ef);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        ">
+                            Moderate
+                        </div>
+                        <div style="
+                            color: #64748b;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            Portfolio Volatility
+                        </div>
+                    </div>
+
+                    <div style="
+                        background: rgba(15, 15, 20, 0.6);
+                        border: 1px solid rgba(147, 51, 234, 0.2);
+                        border-radius: 16px;
+                        padding: 1.5rem;
+                        text-align: center;
+                    ">
+                        <div style="
+                            color: #94a3b8;
+                            font-size: 0.9rem;
+                            margin-bottom: 0.75rem;
+                        ">Diversification</div>
+                        <div style="
+                            color: #ffffff;
+                            font-size: 1.8rem;
+                            font-weight: 700;
+                        ">
+                            72%
+                        </div>
+                        <div style="
+                            color: #22c55e;
+                            font-size: 0.9rem;
+                            margin-top: 0.5rem;
+                        ">
+                            Asset Spread
+                        </div>
                     </div>
                 </div>
             </div>
             """,
-            height=500
+            height=490
         )
 
         # Stats Section using columns
