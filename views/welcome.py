@@ -423,7 +423,6 @@ def welcome_page():
                 font-weight: 800;
                 background: linear-gradient(90deg, #a855f7, #d946ef);
                 -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
                 margin-bottom: 1.5rem;
                 display: inline-block;
                 width: 100%;
