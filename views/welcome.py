@@ -488,45 +488,53 @@ def welcome_page():
     with col2:
         st.markdown("""
         <style>
+        /* Remove all default Streamlit styling */
+        .stApp, .stColumn, .element-container, .stColumnWrapper {
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+        
+        /* Additional reset for iframes and components */
         iframe {
             border: none !important;
-            background: transparent !important;
+            outline: none !important;
+            box-shadow: none !important;
         }
-        .element-container {
+        
+        /* Ensure no white background or borders */
+        div[data-testid="stHorizontalBlock"] > div {
             background: transparent !important;
             padding: 0 !important;
             margin: 0 !important;
-        }
-        .stColumn {
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        .stApp {
-            background: transparent !important;
         }
         </style>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         
         st.components.v1.html(
-        """
-        <div style="
-            display: flex;
-            flex-direction: column;
-            height: 650px;
-            background: transparent;
-            border: none;
-            margin: 0;
-            padding: 0;
-        ">
-            <!-- Top Card -->
+            """
             <div style="
-                background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
-                border-radius: 24px;
-                padding: 2.5rem;
-                border: 1px solid rgba(147, 51, 234, 0.2);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                margin-bottom: 1rem;
+                display: flex;
+                flex-direction: column;
+                height: 650px;
+                background: transparent;
+                border: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
             ">
+                <!-- Top Card with existing styles -->
+                <div style="
+                    background: linear-gradient(145deg, rgba(17, 17, 25, 0.95), rgba(24, 24, 32, 0.95));
+                    border-radius: 24px;
+                    padding: 2.5rem;
+                    border: 1px solid rgba(147, 51, 234, 0.2);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    margin: 0;
+                    width: 100%;
+                    box-sizing: border-box;
+                ">
                     <div style="
                         display: flex;
                         justify-content: space-between;
@@ -639,8 +647,7 @@ def welcome_page():
                     </div>
                 </div>
             """,
-            height=500,
-            scrolling = False 
+            height=500
         )
 
         # Stats Section using columns
