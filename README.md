@@ -9,7 +9,7 @@ A modern, AI-powered stock and cryptocurrency trading platform built with Stream
 - Portfolio tracking and analysis
 - Interactive charts using TradingView integration
 - Transaction history and performance metrics
-- AI-powered trading assistant for market insights
+- AI-powered trading assistant for market insights 
 
 ### Market Data & Analysis
 - Real-time stock prices and market data via yfinance
