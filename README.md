@@ -2,6 +2,15 @@
 
 A modern, AI-powered stock and cryptocurrency trading platform built with Streamlit and Python. Finch offers real-time market data, portfolio management, AI-assisted trading insights, and secure user authentication.
 
+<p align="center">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100234.png" width="250">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100256.png" width="250">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100314.png" width="250">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100326.png" width="250">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100353.png" width="250">
+  <img src="https://github.com/VrajPatel105/Finance-App/blob/main/preview_images/Screenshot%202025-03-25%20100406.png" width="250">
+</p>
+
 ## Features
 
 ### Trading & Portfolio Management
