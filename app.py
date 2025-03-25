@@ -9,7 +9,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Help': None,
+        'Get Help': None, 
         'Report a bug': None,
         'About': None
     }
