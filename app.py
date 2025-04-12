@@ -3,7 +3,7 @@ import json
 # We are setting the page config here.
 # At the top of app.py 
 st.set_page_config( 
-    page_title="Finch",
+    page_title="Finch", 
     page_icon='resources/finch.ico',
     layout="wide",
     initial_sidebar_state="expanded",
