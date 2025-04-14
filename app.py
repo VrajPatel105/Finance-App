@@ -4,7 +4,7 @@ import json
 # At the top of app.py 
 st.set_page_config( 
     page_title="Finch", 
-    page_icon='resources/finch.ico',
+    page_icon='resources/finch.ico', 
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
