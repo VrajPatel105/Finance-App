@@ -12,7 +12,7 @@ st.set_page_config(
         'Report a bug': None,
         'About': None
     }
-)
+) 
 # importing all the libraries and functions from other classes.
 from database.connection import get_database
 from views.auth import register_page, login_page, logout
