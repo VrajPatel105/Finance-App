@@ -5,7 +5,7 @@ import json
 st.set_page_config(      
     page_title="Finch",    
     page_icon='resources/finch.ico',    
-    layout="wide",
+    layout="wide", 
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': None, 
