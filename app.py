@@ -24,7 +24,7 @@ from views.ai_assistant import Assistant
 from views.news import load_news
 from views.music import create_floating_music_player
 from views.account import account_page
-
+  
 # css for user info
 st.markdown("""
    <style>
